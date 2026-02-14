@@ -467,7 +467,12 @@ export default function CliPage() {
 
       {/* Footer */}
       <footer className="border-t border-border px-6 py-5 text-center text-text-dim text-xs">
-        Shipwell &copy; 2026 &middot; Built by Manas Dutta
+        <div className="flex items-center justify-center gap-4">
+          <span>Shipwell &copy; 2026 &middot; Built by Manas Dutta</span>
+          <span className="text-border">&middot;</span>
+          <Link href="/terms" className="hover:text-accent transition-colors">Terms</Link>
+          <Link href="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+        </div>
       </footer>
     </div>
   );
