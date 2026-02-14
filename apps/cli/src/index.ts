@@ -11,7 +11,7 @@ import { configShowCommand, configSetCommand, configDeleteCommand } from "./comm
 import { modelsCommand } from "./commands/models.js";
 import { getUser, getApiKey, getModel } from "./lib/store.js";
 
-const VERSION = "0.2.1";
+const VERSION = "0.2.3";
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
@@ -39,6 +39,14 @@ function centerStr(s: string, w: number): string {
   return " ".repeat(l) + s + " ".repeat(gap - l);
 }
 
+// ─── ASCII art ──────────────────────────────────────────────
+
+const LOGO = [
+  "╔═╗╦ ╦╦╔═╗╦ ╦╔═╗╦  ╦  ",
+  "╚═╗╠═╣║╠═╝║║║╠═ ║  ║  ",
+  "╚═╝╩ ╩╩╩  ╚╩╝╚═╝╩═╝╩═╝",
+];
+
 // ─── Main banner ────────────────────────────────────────────
 
 function showBanner() {
@@ -51,22 +59,18 @@ function showBanner() {
 
   const termW = process.stdout.columns || 90;
   const W = Math.min(Math.max(termW, 80), 100);
-  const LW = Math.floor((W - 7) / 2);       // left content width
-  const RW = W - 7 - LW;                      // right content width
-  // row = │ <LW> │ <RW> │  → total = 7 + LW + RW = W
+  const LW = Math.floor((W - 7) / 2);
+  const RW = W - 7 - LW;
 
   const g = dim;
   const row = (l: string, r: string) =>
     `${g("│")} ${padR(l, LW)} ${g("│")} ${padR(r, RW)} ${g("│")}`;
   const empty = () => row("", "");
 
-  // ── Top border ──
+  // ── Borders ──
   const title = `${accent("⛵ Shipwell")} ${g(`v${VERSION}`)}`;
   const titleVis = visLen(title);
-  const dashes = W - 5 - titleVis;
-  const top = `${g("╭─")} ${title} ${g("─".repeat(Math.max(0, dashes)))}${g("╮")}`;
-
-  // ── Bottom border ──
+  const top = `${g("╭─")} ${title} ${g("─".repeat(Math.max(0, W - 5 - titleVis)))}${g("╮")}`;
   const bot = `${g("╰")}${g("─".repeat(W - 2))}${g("╯")}`;
 
   // ── Build rows ──
@@ -79,33 +83,32 @@ function showBanner() {
   const welcome = user
     ? `Welcome back, ${accent(user.name)}!`
     : `Welcome to ${accent("Shipwell")}`;
-  lines.push(row(centerStr(welcome, LW), bold("Analysis")));
-
-  // Commands (right) + Ship art (left)
+  lines.push(row(centerStr(welcome, LW), bold("Getting started")));
   lines.push(row("", `${chalk.cyan("audit")} ${g("<path>")}      ${g("Security audit")}`));
-  lines.push(row(centerStr("⛵", LW), `${chalk.cyan("migrate")} ${g("<path>")}    ${g("Migration plan")}`));
-  lines.push(row(centerStr(g("~^~^~^~^~"), LW), `${chalk.cyan("refactor")} ${g("<path>")}   ${g("Refactor analysis")}`));
-  lines.push(row("", `${chalk.cyan("docs")} ${g("<path>")}       ${g("Documentation")}`));
-  lines.push(row("", `${chalk.cyan("upgrade")} ${g("<path>")}    ${g("Dep upgrade plan")}`));
 
-  // Model + key info (left) + separator (right)
+  // ASCII SHIPWELL logo (left) + commands (right)
+  lines.push(row(centerStr(accent(LOGO[0]), LW), `${chalk.cyan("migrate")} ${g("<path>")}    ${g("Migration plan")}`));
+  lines.push(row(centerStr(accent(LOGO[1]), LW), `${chalk.cyan("refactor")} ${g("<path>")}   ${g("Refactor analysis")}`));
+  lines.push(row(centerStr(accent(LOGO[2]), LW), `${chalk.cyan("docs")} ${g("<path>")}       ${g("Documentation")}`));
+
+  lines.push(row("", `${chalk.cyan("upgrade")} ${g("<path>")}    ${g("Dep upgrade plan")}`));
+  lines.push(row("", g("─".repeat(RW))));
+
+  // Model + key info (left) + Account section (right)
   const keyDot = apiKey ? chalk.green("●") : chalk.yellow("○");
   const keyText = apiKey ? g("API Key") : chalk.yellow("No API Key");
   const info = `${accent(modelLabel)} · ${keyDot} ${keyText}`;
-  lines.push(row(centerStr(info, LW), g("─".repeat(RW))));
+  lines.push(row(centerStr(info, LW), bold("Account & Config")));
 
-  // Email / login hint (left) + Account commands (right)
   if (user) {
-    lines.push(row(centerStr(g(user.email), LW), bold("Account & Config")));
+    lines.push(row(centerStr(g(user.email), LW), `${chalk.cyan("login")}      ${g("Sign in with Google")}`));
   } else {
     lines.push(row(
       centerStr(`${g("Run")} ${chalk.cyan("shipwell login")} ${g("to start")}`, LW),
-      bold("Account & Config"),
+      `${chalk.cyan("login")}      ${g("Sign in with Google")}`,
     ));
   }
 
-  lines.push(row("", `${chalk.cyan("login")}      ${g("Sign in with Google")}`));
-  lines.push(row("", `${chalk.cyan("logout")}     ${g("Sign out")}`));
   lines.push(row("", `${chalk.cyan("config")}     ${g("View/set configuration")}`));
   lines.push(row("", `${chalk.cyan("models")}     ${g("Available Claude models")}`));
   lines.push(row("", `${chalk.cyan("update")}     ${g("Update to latest version")}`));
