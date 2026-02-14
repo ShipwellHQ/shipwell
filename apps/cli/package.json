@@ -1,6 +1,6 @@
 {
   "name": "@shipwellapp/cli",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Full Codebase Autopilot — deep cross-file analysis powered by Claude",
   "type": "module",
   "bin": {
