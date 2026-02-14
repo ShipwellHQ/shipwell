@@ -1,6 +1,6 @@
-import { readFile, readdir, stat } from "fs/promises";
+import { readFile, readdir, stat, mkdir, writeFile } from "fs/promises";
 import { join, relative } from "path";
-import { simpleGit } from "simple-git";
+import { execFileSync } from "child_process";
 import { glob } from "glob";
 import { createFilter, isCodeFile, getLanguage } from "./filters.js";
 import { estimateTokens } from "./tokens.js";
@@ -14,10 +14,38 @@ function isGitHubUrl(source: string): boolean {
   return source.startsWith("https://github.com/") || source.startsWith("git@github.com:");
 }
 
-async function cloneRepo(url: string): Promise<string> {
-  const tmpDir = join("/tmp", "shipwell-" + Date.now().toString(36));
-  const git = simpleGit();
-  await git.clone(url, tmpDir, ["--depth", "1", "--single-branch"]);
+/** Parse "owner/repo" from a GitHub URL */
+function parseGitHub(url: string): { owner: string; repo: string } {
+  // https://github.com/owner/repo or git@github.com:owner/repo
+  const cleaned = url.replace(/\.git$/, "");
+  const match = cleaned.match(/github\.com[/:]([^/]+)\/([^/]+)/);
+  if (!match) throw new Error(`Invalid GitHub URL: ${url}`);
+  return { owner: match[1], repo: match[2] };
+}
+
+async function downloadRepo(url: string): Promise<string> {
+  const { owner, repo } = parseGitHub(url);
+  const tmpDir = join("/tmp", `shipwell-${Date.now().toString(36)}`);
+  await mkdir(tmpDir, { recursive: true });
+
+  // Download tarball via GitHub API (works without git binary)
+  const tarballUrl = `https://api.github.com/repos/${owner}/${repo}/tarball`;
+  const res = await fetch(tarballUrl, {
+    headers: { Accept: "application/vnd.github+json", "User-Agent": "shipwell-cli" },
+    redirect: "follow",
+  });
+
+  if (!res.ok) {
+    throw new Error(`GitHub API error ${res.status}: could not fetch ${owner}/${repo}`);
+  }
+
+  const tarPath = join(tmpDir, "repo.tar.gz");
+  const buffer = Buffer.from(await res.arrayBuffer());
+  await writeFile(tarPath, buffer);
+
+  // Extract tarball
+  execFileSync("tar", ["xzf", tarPath, "-C", tmpDir, "--strip-components=1"]);
+
   return tmpDir;
 }
 
@@ -27,7 +55,7 @@ export async function ingestRepo(options: IngestOptions): Promise<IngestResult> 
   // Resolve source to local path
   let repoPath: string;
   if (isGitHubUrl(options.source)) {
-    repoPath = await cloneRepo(options.source);
+    repoPath = await downloadRepo(options.source);
   } else {
     repoPath = options.source;
   }
