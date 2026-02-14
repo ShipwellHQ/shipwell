@@ -2,6 +2,7 @@ import ora from "ora";
 import chalk from "chalk";
 import { ingestRepo, bundleCodebase, streamAnalysis, StreamingParser, getMaxCodebaseTokens } from "@shipwell/core";
 import type { Operation, Finding, MetricEvent } from "@shipwell/core";
+import { getApiKey, getModel, getUser } from "../lib/store.js";
 
 interface AnalyzeOptions {
   apiKey?: string;
@@ -56,15 +57,26 @@ function formatMetric(m: MetricEvent): string {
 }
 
 export async function analyzeCommand(operation: Operation, source: string, options: AnalyzeOptions) {
-  const apiKey = options.apiKey || process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.error(chalk.red("\n  Error: Anthropic API key is required.\n"));
-    console.error(dim("  Set ANTHROPIC_API_KEY env var or use --api-key flag"));
-    console.error(dim("  Example: shipwell audit ./my-repo --api-key sk-ant-...\n"));
+  // Check login
+  const user = getUser();
+  if (!user) {
+    console.error(chalk.red("\n  Error: Not logged in.\n"));
+    console.error(dim("  Run ") + chalk.cyan("shipwell login") + dim(" to sign in with Google.\n"));
     process.exit(1);
   }
 
-  const model = options.model || process.env.SHIPWELL_MODEL || "claude-sonnet-4-5-20250929";
+  // Resolve API key: flag > env > stored config
+  const apiKey = options.apiKey || process.env.ANTHROPIC_API_KEY || getApiKey();
+  if (!apiKey) {
+    console.error(chalk.red("\n  Error: Anthropic API key is required.\n"));
+    console.error(dim("  Set it with: ") + chalk.cyan("shipwell config set api-key sk-ant-..."));
+    console.error(dim("  Or pass it:  ") + chalk.cyan("shipwell audit ./repo --api-key sk-ant-..."));
+    console.error(dim("  Or set env:  ") + chalk.cyan("export ANTHROPIC_API_KEY=sk-ant-...\n"));
+    process.exit(1);
+  }
+
+  // Resolve model: flag > env > stored config > default
+  const model = options.model || process.env.SHIPWELL_MODEL || getModel() || "claude-sonnet-4-5-20250929";
   const startTime = Date.now();
 
   // Header
