@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Shipwell — Full Codebase Autopilot",
   description: "Ingest entire codebases into Opus 4.6's 1M context window for deep cross-file analysis",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
