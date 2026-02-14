@@ -6,8 +6,8 @@ import clsx from "clsx";
 import type { MetricEvent } from "@shipwell/core/client";
 
 export function MetricCard({ metric, index }: { metric: MetricEvent; index: number }) {
-  const beforeNum = parseFloat(metric.before);
-  const afterNum = parseFloat(metric.after);
+  const beforeNum = typeof metric.before === "number" ? metric.before : parseFloat(metric.before);
+  const afterNum = typeof metric.after === "number" ? metric.after : parseFloat(metric.after);
   const isImprovement = afterNum > beforeNum;
   const isDecline = afterNum < beforeNum;
   const isNeutral = !isImprovement && !isDecline;
