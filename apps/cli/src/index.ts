@@ -10,7 +10,7 @@ import { configShowCommand, configSetCommand, configDeleteCommand } from "./comm
 import { modelsCommand } from "./commands/models.js";
 import { getUser, getApiKey } from "./lib/store.js";
 
-const VERSION = "0.1.2";
+const VERSION = "0.2.0";
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
