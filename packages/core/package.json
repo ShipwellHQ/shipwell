@@ -23,9 +23,11 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "glob": "^11.0.0",
     "ignore": "^7.0.0",
-    "simple-git": "^3.27.0"
+    "simple-git": "^3.27.0",
+    "tar": "^7.5.7"
   },
   "devDependencies": {
+    "@types/tar": "^6.1.13",
     "typescript": "^5.7.0"
   }
 }

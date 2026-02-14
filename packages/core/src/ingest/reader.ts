@@ -1,6 +1,6 @@
 import { readFile, readdir, stat, mkdir, writeFile } from "fs/promises";
 import { join, relative } from "path";
-import { execFileSync } from "child_process";
+import * as tar from "tar";
 import { glob } from "glob";
 import { createFilter, isCodeFile, getLanguage } from "./filters.js";
 import { estimateTokens } from "./tokens.js";
@@ -43,8 +43,8 @@ async function downloadRepo(url: string): Promise<string> {
   const buffer = Buffer.from(await res.arrayBuffer());
   await writeFile(tarPath, buffer);
 
-  // Extract tarball
-  execFileSync("tar", ["xzf", tarPath, "-C", tmpDir, "--strip-components=1"]);
+  // Extract tarball using pure JS tar (no native binary needed)
+  await tar.extract({ file: tarPath, cwd: tmpDir, strip: 1 });
 
   return tmpDir;
 }

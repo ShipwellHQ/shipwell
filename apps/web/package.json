@@ -20,7 +20,8 @@
     "react": "^19.0.0",
     "react-diff-viewer-continued": "^4.0.5",
     "react-dom": "^19.0.0",
-    "simple-git": "^3.27.0"
+    "simple-git": "^3.27.0",
+    "tar": "^7.5.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
