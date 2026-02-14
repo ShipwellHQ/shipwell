@@ -1,0 +1,15 @@
+{
+  "name": "shipwell",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev:web": "turbo dev --filter=@shipwell/web",
+    "dev:cli": "turbo dev --filter=@shipwell/cli",
+    "build:core": "turbo build --filter=@shipwell/core",
+    "build:web": "turbo build --filter=@shipwell/web",
+    "build:cli": "turbo build --filter=@shipwell/cli"
+  },
+  "packageManager": "pnpm@9.15.4"
+}
