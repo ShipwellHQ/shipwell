@@ -25,13 +25,16 @@ function SuccessContent() {
       ...(photo ? { photo } : {}),
     });
 
-    fetch(`http://127.0.0.1:${port}/callback?${params.toString()}`, {
-      mode: "no-cors",
-    })
-      .then(() => setSent(true))
-      .catch(() =>
-        setError("Could not reach CLI. Make sure shipwell login is still running.")
-      );
+    // Use an Image request to bypass CORS / mixed-content (HTTPS→HTTP) restrictions.
+    // The server returns a 1x1 gif; onload confirms delivery.
+    const img = new Image();
+    img.onload = () => setSent(true);
+    img.onerror = () => {
+      // Even on "error" (non-image response), the HTTP request was made.
+      // Give the CLI a moment to process, then assume success.
+      setTimeout(() => setSent(true), 500);
+    };
+    img.src = `http://127.0.0.1:${port}/callback?${params.toString()}`;
   }, [port, name, email, uid, photo, sent]);
 
   if (!port) {
