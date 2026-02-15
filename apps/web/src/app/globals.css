@@ -126,6 +126,17 @@ body {
   );
   animation: shimmer 2s ease-in-out infinite;
 }
+.shimmer-bar {
+  background: linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.04) 0%,
+    rgba(99, 102, 241, 0.12) 40%,
+    rgba(99, 102, 241, 0.18) 50%,
+    rgba(99, 102, 241, 0.12) 60%,
+    rgba(99, 102, 241, 0.04) 100%
+  );
+  animation: shimmer 1.8s ease-in-out infinite;
+}
 
 /* Thinking text fade */
 @keyframes thinking-fade-in {

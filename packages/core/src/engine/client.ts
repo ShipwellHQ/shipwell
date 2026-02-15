@@ -1,9 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_PROMPT, getOperationPrompt } from "../prompts/index.js";
-import { DEFAULT_MODEL } from "../models.js";
+import { DEFAULT_MODEL, getMaxOutputTokens } from "../models.js";
 import type { Operation } from "../types.js";
 
-export { AVAILABLE_MODELS, DEFAULT_MODEL } from "../models.js";
+export { AVAILABLE_MODELS, DEFAULT_MODEL, getMaxOutputTokens } from "../models.js";
 
 export interface StreamOptions {
   apiKey: string;
@@ -26,9 +26,10 @@ Here is the complete codebase to analyze:
 
 ${codebaseXml}`;
 
+  const selectedModel = model || DEFAULT_MODEL;
   const stream = client.messages.stream({
-    model: model || DEFAULT_MODEL,
-    max_tokens: 16000,
+    model: selectedModel,
+    max_tokens: getMaxOutputTokens(selectedModel),
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: userPrompt }],
   });

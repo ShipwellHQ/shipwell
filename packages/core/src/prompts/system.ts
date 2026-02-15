@@ -16,8 +16,11 @@ Wrap all output in <analysis> tags. Each finding goes in a <finding> tag:
 <summary>Brief overall summary of the analysis</summary>
 
 <metrics>
+<metric label="Health Score" before="0-100 score" after="0-100 projected score" unit="/ 100" />
 <metric label="Label" before="value" after="value" unit="optional unit" />
 </metrics>
+
+IMPORTANT: You MUST always include a "Health Score" metric (0-100) as the FIRST metric. This is a weighted composite score reflecting overall codebase health. Score meaning: 90-100 = excellent, 80-89 = good, 60-79 = needs improvement, below 60 = poor. The "before" value is the current state, the "after" value is the projected state after applying your suggestions.
 
 <finding id="1" type="issue|suggestion|change|doc" severity="critical|high|medium|low|info">
 <title>Short descriptive title</title>

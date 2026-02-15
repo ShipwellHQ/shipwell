@@ -11,7 +11,14 @@ const MAX_FILE_SIZE = 512 * 1024; // 512KB per file
 const DEFAULT_MAX_TOKENS = 865_000;
 
 function isGitHubUrl(source: string): boolean {
-  return source.startsWith("https://github.com/") || source.startsWith("git@github.com:");
+  return source.startsWith("https://github.com/") || source.startsWith("http://github.com/") || source.startsWith("github.com/") || source.startsWith("git@github.com:");
+}
+
+function normalizeSource(source: string): string {
+  if (source.startsWith("github.com/")) {
+    return `https://${source}`;
+  }
+  return source;
 }
 
 /** Parse "owner/repo" from a GitHub URL */
@@ -53,11 +60,12 @@ export async function ingestRepo(options: IngestOptions): Promise<IngestResult> 
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
 
   // Resolve source to local path
+  const source = normalizeSource(options.source);
   let repoPath: string;
-  if (isGitHubUrl(options.source)) {
-    repoPath = await downloadRepo(options.source);
+  if (isGitHubUrl(source)) {
+    repoPath = await downloadRepo(source);
   } else {
-    repoPath = options.source;
+    repoPath = source;
   }
 
   // Read .gitignore if present

@@ -17,6 +17,10 @@ import { useApiKey } from "@/hooks/use-api-key";
 import { FindingCard } from "@/components/finding-card";
 import { MetricCard } from "@/components/metric-card";
 import { StreamingOutput } from "@/components/streaming-output";
+import { HealthScore } from "@/components/health-score";
+import { SeverityBar } from "@/components/severity-bar";
+import { FileImpact } from "@/components/file-impact";
+import { ExportButton } from "@/components/export-button";
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from "@shipwell/core/client";
 
 const operations = [
@@ -73,6 +77,22 @@ function AnalysisContent() {
 
   const crossFileCount = sse.findings.filter((f) => f.crossFile).length;
   const isRunning = sse.status === "connecting" || sse.status === "streaming";
+
+  const severityCounts = {
+    critical: sse.findings.filter((f) => f.severity === "critical").length,
+    high: sse.findings.filter((f) => f.severity === "high").length,
+    medium: sse.findings.filter((f) => f.severity === "medium").length,
+    low: sse.findings.filter((f) => f.severity === "low").length,
+    info: sse.findings.filter((f) => !f.severity || f.severity === "info").length,
+  };
+  const hasSeverityData = sse.findings.length > 0;
+
+  const healthMetric = sse.metrics.find((m) => /health\s*score/i.test(m.label));
+  const healthBeforeRaw = healthMetric ? parseFloat(String(healthMetric.before)) : NaN;
+  const healthAfterRaw = healthMetric ? parseFloat(String(healthMetric.after)) : NaN;
+  const healthBefore = Number.isFinite(healthBeforeRaw) ? healthBeforeRaw : null;
+  const healthAfter = Number.isFinite(healthAfterRaw) ? healthAfterRaw : null;
+  const showDashboard = isRunning || sse.findings.length > 0 || healthMetric;
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -265,6 +285,34 @@ function AnalysisContent() {
                 </motion.div>
               )}
 
+              {/* Dashboard Row */}
+              {showDashboard && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                >
+                  {healthBefore !== null && healthAfter !== null ? (
+                    <HealthScore before={healthBefore} after={healthAfter} />
+                  ) : !isRunning ? (
+                    <HealthScore before={0} after={0} />
+                  ) : (
+                    <DashboardShimmer label="Health Score" />
+                  )}
+                  {hasSeverityData || !isRunning ? (
+                    <SeverityBar {...severityCounts} />
+                  ) : (
+                    <DashboardShimmer label="Severity Distribution" />
+                  )}
+                  {sse.findings.length > 0 || !isRunning ? (
+                    <FileImpact findings={sse.findings} />
+                  ) : (
+                    <DashboardShimmer label="Most Impacted Files" />
+                  )}
+                </motion.div>
+              )}
+
               {/* Tabs */}
               <div className="flex items-center gap-0.5 border-b border-border">
                 {([
@@ -297,6 +345,17 @@ function AnalysisContent() {
                 ))}
 
                 <div className="flex-1" />
+
+                {/* Export */}
+                {sse.status === "complete" && sse.findings.length > 0 && (
+                  <ExportButton
+                    findings={sse.findings}
+                    metrics={sse.metrics}
+                    summary={sse.summary}
+                    operation={operation}
+                    source={source}
+                  />
+                )}
 
                 {/* Filters */}
                 {activeTab === "findings" && sse.findings.length > 0 && (
@@ -414,6 +473,27 @@ function AnalysisContent() {
             </div>
           )}
         </main>
+      </div>
+    </div>
+  );
+}
+
+function DashboardShimmer({ label }: { label: string }) {
+  return (
+    <div className="bg-bg-card border border-border rounded-xl p-5 overflow-hidden">
+      <div className="text-[10px] uppercase tracking-wider font-semibold text-text-dim mb-4">
+        {label}
+      </div>
+      <div className="space-y-3">
+        <div className="h-3 rounded-full bg-border/30 overflow-hidden">
+          <div className="h-full w-full shimmer-bar" />
+        </div>
+        <div className="h-3 rounded-full bg-border/30 overflow-hidden w-3/4">
+          <div className="h-full w-full shimmer-bar" />
+        </div>
+        <div className="h-3 rounded-full bg-border/30 overflow-hidden w-1/2">
+          <div className="h-full w-full shimmer-bar" />
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { AlertTriangle, Info, Lightbulb, FileCode2, Link2, ChevronDown } from "l
 import type { Finding } from "@shipwell/core/client";
 import clsx from "clsx";
 import { useState } from "react";
+import { DiffViewer } from "./diff-viewer";
 
 const severityConfig = {
   critical: { border: "border-red-500/20", bg: "bg-red-500/5", badge: "bg-red-500/15 text-red-400 ring-red-500/20" },
@@ -85,9 +86,9 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
             {expanded ? "Hide" : "View"} suggested fix
           </button>
           {expanded && (
-            <pre className="px-4 pb-3 text-[12px] overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed text-text-muted">
-              {finding.diff}
-            </pre>
+            <div className="px-4 pb-3">
+              <DiffViewer diff={finding.diff} />
+            </div>
           )}
         </div>
       )}
