@@ -1,4 +1,8 @@
 import { createInterface } from "node:readline";
+import chalk from "chalk";
+
+const dim = chalk.dim;
+const accent = chalk.hex("#6366f1");
 
 function createRL() {
   return createInterface({ input: process.stdin, output: process.stdout });
@@ -25,28 +29,30 @@ export function promptText(message: string): Promise<string> {
   });
 }
 
-export function promptChoice(
-  message: string,
+export async function promptTextRequired(message: string, errorMsg?: string): Promise<string> {
+  while (true) {
+    const answer = await promptText(message);
+    if (answer) return answer;
+    console.log(`  ${chalk.red(errorMsg || "Input required. Please try again.")}`);
+  }
+}
+
+export async function promptChoice(
   choices: { label: string; description?: string }[],
 ): Promise<number> {
-  return new Promise((resolve) => {
+  while (true) {
     const rl = createRL();
-    console.log();
-    console.log(`  ${message}`);
-    console.log();
-    for (let i = 0; i < choices.length; i++) {
-      const desc = choices[i].description ? `  ${choices[i].description}` : "";
-      console.log(`    ${i + 1}. ${choices[i].label}${desc}`);
-    }
-    console.log();
-    rl.question(`  Choice [1-${choices.length}]: `, (answer) => {
-      rl.close();
-      const n = parseInt(answer.trim(), 10);
-      if (n >= 1 && n <= choices.length) {
-        resolve(n - 1);
-      } else {
-        resolve(0);
-      }
+    const answer = await new Promise<string>((resolve) => {
+      rl.question(`  ${dim("Choice")} [1-${choices.length}]: `, (a) => {
+        rl.close();
+        resolve(a.trim());
+      });
     });
-  });
+
+    const n = parseInt(answer, 10);
+    if (n >= 1 && n <= choices.length) {
+      return n - 1;
+    }
+    console.log(`  ${chalk.red(`Please enter a number between 1 and ${choices.length}.`)}`);
+  }
 }

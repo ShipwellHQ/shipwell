@@ -77,6 +77,8 @@ const commands = [
   { cmd: "whoami", icon: Settings, desc: "Show current user, API key status, and model" },
   { cmd: "config set api-key <key>", icon: Settings, desc: "Set your Anthropic API key" },
   { cmd: "config set model <model>", icon: Cpu, desc: "Set the Claude model to use" },
+  { cmd: "delete-key", icon: Settings, desc: "Remove stored Anthropic API key" },
+  { cmd: "interactive", icon: Terminal, desc: "Launch interactive guided mode" },
   { cmd: "models", icon: Cpu, desc: "List all available Claude models" },
   { cmd: "update", icon: RefreshCw, desc: "Update CLI to the latest version" },
 ];
@@ -87,6 +89,8 @@ const flags = [
   { flag: "-t, --target <target>", desc: "Migration target framework/library" },
   { flag: "-c, --context <ctx>", desc: "Additional context for the analysis" },
   { flag: "-r, --raw", desc: "Print raw streaming output alongside formatted results" },
+  { flag: "-y, --yes", desc: "Skip cost confirmation prompt" },
+  { flag: "-o, --output <path>", desc: "Export report to file (.md or .json)" },
 ];
 
 // ── Page ───────────────────────────────────────────────────
@@ -393,8 +397,11 @@ export default function CliPage() {
             </div>
 
             <div className="mt-6">
-              <p className="text-sm text-text-dim mb-3">Example with flags:</p>
+              <p className="text-sm text-text-dim mb-3">Examples with flags:</p>
               <CodeBlock copyText='shipwell migrate ./my-app --target "Next.js 15" --model claude-opus-4-6'>{`shipwell migrate ./my-app --target "Next.js 15" --model claude-opus-4-6`}</CodeBlock>
+              <div className="mt-3">
+                <CodeBlock copyText="shipwell audit ./my-app -y -o report.md">{`shipwell audit ./my-app -y -o report.md`}</CodeBlock>
+              </div>
             </div>
           </motion.div>
         </div>

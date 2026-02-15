@@ -132,6 +132,20 @@ shipwell docs ./my-project
 shipwell upgrade ./my-project
 ```
 
+### More commands
+
+```bash
+# Interactive guided mode
+shipwell interactive
+
+# Remove stored API key
+shipwell delete-key
+
+# View config / account info
+shipwell whoami
+shipwell config
+```
+
 ### CLI options
 
 ```
@@ -140,6 +154,21 @@ shipwell upgrade ./my-project
 -t, --target <target>    Migration target (for migrate command)
 -c, --context <context>  Additional context to focus the analysis
 -r, --raw                Print raw streaming output
+-y, --yes                Skip cost confirmation prompt
+-o, --output <path>      Export report to file (.md or .json)
+```
+
+### Export reports
+
+```bash
+# Export as Markdown
+shipwell audit ./my-project -o report.md
+
+# Export as JSON
+shipwell audit ./my-project -o report.json
+
+# Skip confirmation and export
+shipwell audit ./my-project -y -o report.md
 ```
 
 ### Example output
@@ -147,17 +176,36 @@ shipwell upgrade ./my-project
 ```
 $ shipwell audit https://github.com/acme/api
 
-  ⛵ Cloning acme/api...
-  ⛵ Ingesting 342 files (187,420 tokens)
-  ⛵ Analyzing with Claude Sonnet 4.5...
+  ⛵ Shipwell — Full Codebase Autopilot
+  Security Audit · claude-sonnet-4-5-20250929
 
-  CRITICAL  SQL injection in src/db/queries.ts:47
-            Unsanitized user input flows to db.raw() via 3 files
-  HIGH      Hardcoded secret in src/config/auth.ts:12
-  HIGH      Missing rate limiting on src/routes/api/*.ts
+  ✔ Read 342 files (58 skipped, ~187K tokens)
+  ✔ Bundled 342 files (~187K tokens)
 
-  ✔ 12 findings (2 critical, 4 high, 3 medium, 3 low)
-  ✔ 3 cross-file issues detected
+  Estimated cost: ~$0.68 (187K input + ~8K output tokens)
+  Proceed? [Y/n] y
+
+  ─── Findings ────────────────────────────────────────────
+
+   1. SQL injection in queries.ts [CRITICAL] ⟷
+      src/db/queries.ts, src/routes/api.ts
+      Unsanitized user input flows to db.raw() via 3 files...
+
+   2. Hardcoded secret in auth config [HIGH]
+      src/config/auth.ts
+      API secret is committed directly in source code...
+
+  ╭────────────────────────────────────────────────────────╮
+  │ Analysis Complete                                      │
+  │                                                        │
+  │ 12 findings: 2 critical / 4 high / 3 medium / 3 low   │
+  │ 3 cross-file issues detected                           │
+  │ 342 files analyzed | 187K tokens | 23.4s               │
+  ╰────────────────────────────────────────────────────────╯
+
+  Export full report with detailed findings:
+  shipwell audit https://github.com/acme/api -o report.md
+  shipwell audit https://github.com/acme/api -o report.json
 ```
 
 ---

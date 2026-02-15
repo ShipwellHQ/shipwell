@@ -110,7 +110,8 @@ function AnalysisContent() {
 
   const crossFileCount = sse.findings.filter((f) => f.crossFile).length;
   const isRunning = sse.status === "connecting" || sse.status === "streaming";
-  const isReady = !!source && isConnected;
+  const isGitHubUrl = /^(https?:\/\/)?(www\.)?github\.com\/[^/]+\/[^/]+/.test(source);
+  const isReady = !!source && isGitHubUrl && isConnected;
 
   const severityCounts = {
     critical: sse.findings.filter((f) => f.severity === "critical").length,
@@ -151,15 +152,18 @@ function AnalysisContent() {
 
             {/* Repository Input */}
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-semibold mb-1.5">Repository</label>
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-semibold mb-1.5">GitHub Repository</label>
               <input
                 type="text"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
-                placeholder="GitHub URL or local path..."
+                placeholder="https://github.com/owner/repo"
                 className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-[13px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 placeholder:text-text-dim transition-colors"
                 disabled={isRunning}
               />
+              {source && !isGitHubUrl && (
+                <p className="text-[11px] text-red-400 mt-1">Please enter a valid GitHub repository URL</p>
+              )}
             </div>
 
             {/* Gradient divider */}
