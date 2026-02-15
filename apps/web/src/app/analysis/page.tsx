@@ -110,6 +110,7 @@ function AnalysisContent() {
 
   const crossFileCount = sse.findings.filter((f) => f.crossFile).length;
   const isRunning = sse.status === "connecting" || sse.status === "streaming";
+  const isReady = !!source && isConnected;
 
   const severityCounts = {
     critical: sse.findings.filter((f) => f.severity === "critical").length,
@@ -135,7 +136,7 @@ function AnalysisContent() {
         {/* Sidebar — fixed height, internally scrollable */}
         <aside className="w-[300px] border-r border-border flex flex-col shrink-0 bg-bg-card/30">
           {/* Scrollable controls */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 sidebar-scroll">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-5 sidebar-scroll">
             {/* API Key Warning */}
             {loaded && !isConnected && (
               <Link
@@ -161,6 +162,9 @@ function AnalysisContent() {
               />
             </div>
 
+            {/* Gradient divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
             {/* Operation Selector */}
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-dim font-semibold mb-1.5">Operation</label>
@@ -171,21 +175,21 @@ function AnalysisContent() {
                     onClick={() => setOperation(op.id)}
                     disabled={isRunning}
                     className={clsx(
-                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all duration-150",
+                      "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all duration-150",
                       operation === op.id
                         ? "bg-accent/8 border border-accent/25"
                         : "border border-transparent hover:bg-bg-elevated"
                     )}
                   >
                     <div className={clsx(
-                      "w-7 h-7 rounded-md flex items-center justify-center shrink-0",
+                      "w-8 h-8 rounded-md flex items-center justify-center shrink-0",
                       operation === op.id ? "bg-accent/15" : op.bg
                     )}>
-                      <op.icon className={clsx("w-3.5 h-3.5", operation === op.id ? "text-accent" : op.color)} />
+                      <op.icon className={clsx("w-4 h-4", operation === op.id ? "text-accent" : op.color)} />
                     </div>
                     <div className="min-w-0">
                       <div className={clsx(
-                        "text-[12px] font-medium leading-tight",
+                        "text-[13px] font-medium leading-tight",
                         operation === op.id ? "text-accent" : "text-text"
                       )}>
                         {op.label}
@@ -196,6 +200,9 @@ function AnalysisContent() {
                 ))}
               </div>
             </div>
+
+            {/* Gradient divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
             {/* Migration Target */}
             {operation === "migrate" && (
@@ -275,7 +282,7 @@ function AnalysisContent() {
             {isRunning ? (
               <button
                 onClick={sse.stop}
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-danger/10 hover:bg-danger/15 text-danger font-semibold rounded-lg transition-colors border border-danger/20 text-[13px]"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-danger/10 hover:bg-danger/15 text-danger font-semibold rounded-xl transition-colors border border-danger/20 text-[13px]"
               >
                 <Square className="w-3.5 h-3.5" />
                 Stop
@@ -284,7 +291,10 @@ function AnalysisContent() {
               <button
                 onClick={handleStart}
                 disabled={!source || !isConnected}
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200 glow-accent text-[13px]"
+                className={clsx(
+                  "flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 text-[14px]",
+                  isReady ? "glow-pulse" : "glow-accent"
+                )}
               >
                 <Play className="w-3.5 h-3.5" />
                 Start Analysis
@@ -294,13 +304,19 @@ function AnalysisContent() {
         </aside>
 
         {/* Main Content — scrolls independently */}
-        <main className="flex-1 min-h-0 overflow-y-auto">
+        <main className={clsx("flex-1 min-h-0 overflow-y-auto", sse.status === "idle" && "bg-analysis-gradient")}>
           {sse.status === "idle" ? (
             /* Empty State */
             <div className="h-full flex items-center justify-center">
               <div className="text-center max-w-xs">
-                <div className="w-16 h-16 rounded-2xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-5">
-                  <Scan className="w-7 h-7 text-text-dim" />
+                {/* Animated pulse rings */}
+                <div className="relative w-20 h-20 mx-auto mb-5">
+                  <div className="absolute inset-0 rounded-2xl border border-accent/20" style={{ animation: "pulse-ring 3s ease-in-out infinite" }} />
+                  <div className="absolute inset-[-8px] rounded-3xl border border-accent/10" style={{ animation: "pulse-ring 3s ease-in-out infinite 0.5s" }} />
+                  <div className="absolute inset-[-16px] rounded-[20px] border border-accent/5" style={{ animation: "pulse-ring 3s ease-in-out infinite 1s" }} />
+                  <div className="absolute inset-0 rounded-2xl bg-bg-elevated border border-border flex items-center justify-center">
+                    <Scan className="w-8 h-8 text-text-dim" />
+                  </div>
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Ready to analyze</h3>
                 <p className="text-text-dim text-sm leading-relaxed mb-4">
@@ -542,19 +558,22 @@ function AnalysisContent() {
 
 function DashboardShimmer({ label }: { label: string }) {
   return (
-    <div className="bg-bg-card border border-border rounded-xl p-5 overflow-hidden">
-      <div className="text-[10px] uppercase tracking-wider font-semibold text-text-dim mb-4">
-        {label}
-      </div>
-      <div className="space-y-3">
-        <div className="h-3 rounded-full bg-border/30 overflow-hidden">
-          <div className="h-full w-full shimmer-bar" />
+    <div className="bg-bg-card/80 backdrop-blur-sm border border-border rounded-xl p-5 overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.02] to-transparent pointer-events-none" />
+      <div className="relative">
+        <div className="text-[10px] uppercase tracking-wider font-semibold text-text-dim mb-4">
+          {label}
         </div>
-        <div className="h-3 rounded-full bg-border/30 overflow-hidden w-3/4">
-          <div className="h-full w-full shimmer-bar" />
-        </div>
-        <div className="h-3 rounded-full bg-border/30 overflow-hidden w-1/2">
-          <div className="h-full w-full shimmer-bar" />
+        <div className="space-y-3">
+          <div className="h-3 rounded-full bg-border/30 overflow-hidden">
+            <div className="h-full w-full shimmer-bar" />
+          </div>
+          <div className="h-3 rounded-full bg-border/30 overflow-hidden w-3/4">
+            <div className="h-full w-full shimmer-bar" style={{ animationDelay: "0.2s" }} />
+          </div>
+          <div className="h-3 rounded-full bg-border/30 overflow-hidden w-1/2">
+            <div className="h-full w-full shimmer-bar" style={{ animationDelay: "0.4s" }} />
+          </div>
         </div>
       </div>
     </div>

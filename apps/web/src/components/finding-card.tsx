@@ -42,7 +42,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.03 }}
-      className={clsx("border rounded-xl overflow-hidden", config.border, config.bg)}
+      className={clsx("border rounded-xl overflow-hidden", config.border, config.bg, `severity-bar-${severity}`)}
     >
       <div className="p-4">
         {/* Header */}
@@ -51,11 +51,11 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
             <div className="w-7 h-7 rounded-lg bg-bg-elevated/80 flex items-center justify-center shrink-0">
               <Icon className="w-3.5 h-3.5 text-text-muted" />
             </div>
-            <h4 className="font-semibold text-[13px] leading-tight">{finding.title}</h4>
+            <h4 className="font-semibold text-[14px] leading-tight">{finding.title}</h4>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {finding.crossFile && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/10 text-accent text-[11px] font-medium ring-1 ring-accent/15">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/10 text-accent text-[11px] font-semibold ring-1 ring-accent/15 shadow-sm shadow-accent/10">
                 <Link2 className="w-3 h-3" />
                 Cross-file
               </span>
@@ -67,7 +67,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
         </div>
 
         {/* Description */}
-        <p className="text-text-muted text-[13px] leading-relaxed mb-3 pl-[38px]">
+        <p className="text-text-dim text-[13px] leading-relaxed mb-3 pl-[38px]">
           {finding.description}
         </p>
 

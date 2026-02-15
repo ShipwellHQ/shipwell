@@ -7,6 +7,15 @@ import { Ship, Zap, Shield, Layers, Scan } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { LogoLoader } from "@/components/logo-loader";
 
+const floatingParticles = [
+  { left: "10%", delay: "0s", duration: "7s" },
+  { left: "25%", delay: "1.2s", duration: "9s" },
+  { left: "45%", delay: "2.5s", duration: "8s" },
+  { left: "65%", delay: "0.8s", duration: "10s" },
+  { left: "80%", delay: "3s", duration: "7.5s" },
+  { left: "92%", delay: "1.8s", duration: "8.5s" },
+];
+
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
@@ -30,6 +39,19 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute inset-0 bg-radial-glow" />
 
+      {/* Floating particles */}
+      {floatingParticles.map((p, i) => (
+        <div
+          key={i}
+          className="absolute bottom-0 w-1 h-1 rounded-full bg-accent/30 float-particle"
+          style={{
+            left: p.left,
+            "--delay": p.delay,
+            "--duration": p.duration,
+          } as React.CSSProperties}
+        />
+      ))}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -44,7 +66,18 @@ export default function LoginPage() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="mb-5 flex justify-center"
           >
-            <Ship className="w-10 h-10 text-accent" />
+            {/* Ship icon with orbit rings */}
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              {/* Orbit ring 1 */}
+              <div className="absolute inset-[-8px] orbit-slow">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-accent/40" />
+              </div>
+              {/* Orbit ring 2 */}
+              <div className="absolute inset-[-16px] orbit-reverse">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-purple-400/30" />
+              </div>
+              <Ship className="w-10 h-10 text-accent relative" />
+            </div>
           </motion.div>
           <h1 className="text-3xl font-bold mb-2 tracking-tight">Welcome to <span className="gradient-text">Shipwell</span></h1>
           <p className="text-text-muted text-sm leading-relaxed">
@@ -57,11 +90,11 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="bg-bg-card border border-border rounded-2xl p-6 shadow-2xl shadow-black/30"
+          className="bg-bg-card border border-border rounded-2xl p-6 shadow-2xl shadow-black/30 gradient-border"
         >
           <button
             onClick={signInWithGoogle}
-            className="flex items-center justify-center gap-3 w-full px-4 py-3.5 bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-xl transition-all duration-200 text-[15px] shadow-sm"
+            className="flex items-center justify-center gap-3 w-full px-4 py-4 bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-xl transition-all duration-200 text-[15px] shadow-md hover:scale-[1.01]"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path

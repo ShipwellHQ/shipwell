@@ -16,8 +16,8 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-info: #3b82f6;
-  --font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-sans: var(--font-inter), "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 }
 
 html {
@@ -28,6 +28,13 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+}
+
+/* Focus-visible accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* Scrollbar */
@@ -63,6 +70,15 @@ body {
   box-shadow: 0 0 30px rgba(99, 102, 241, 0.3), 0 0 80px rgba(99, 102, 241, 0.12), 0 0 120px rgba(99, 102, 241, 0.05);
 }
 
+/* Glow pulse for Start Analysis button */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(99, 102, 241, 0.25), 0 0 40px rgba(99, 102, 241, 0.08); }
+  50% { box-shadow: 0 0 24px rgba(99, 102, 241, 0.4), 0 0 60px rgba(99, 102, 241, 0.15); }
+}
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
 /* Glass */
 .glass {
   background: rgba(17, 17, 19, 0.7);
@@ -70,12 +86,33 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
-/* Gradient text */
+/* Gradient text — animated */
 .gradient-text {
-  background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #a78bfa 100%);
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 25%, #a78bfa 50%, #7c3aed 75%, #818cf8 100%);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Severity bar left-border utilities for finding cards */
+.severity-bar-critical { border-left: 3px solid #ef4444; }
+.severity-bar-high { border-left: 3px solid #f97316; }
+.severity-bar-medium { border-left: 3px solid #eab308; }
+.severity-bar-low { border-left: 3px solid #3b82f6; }
+.severity-bar-info { border-left: 3px solid #6b7280; }
+
+/* Analysis page background gradient */
+.bg-analysis-gradient {
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(99, 102, 241, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(124, 58, 237, 0.03) 0%, transparent 60%);
 }
 
 /* Subtle grid background */
@@ -130,9 +167,9 @@ body {
   background: linear-gradient(
     90deg,
     rgba(99, 102, 241, 0.04) 0%,
-    rgba(99, 102, 241, 0.12) 40%,
+    rgba(124, 58, 237, 0.10) 25%,
     rgba(99, 102, 241, 0.18) 50%,
-    rgba(99, 102, 241, 0.12) 60%,
+    rgba(167, 139, 250, 0.10) 75%,
     rgba(99, 102, 241, 0.04) 100%
   );
   animation: shimmer 1.8s ease-in-out infinite;
@@ -209,10 +246,23 @@ body {
   100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
 }
 
+.float-particle {
+  animation: float-up var(--duration, 8s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
 /* Orbit ring */
 @keyframes orbit {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.orbit-slow {
+  animation: orbit 12s linear infinite;
+}
+
+.orbit-reverse {
+  animation: orbit 16s linear infinite reverse;
 }
 
 /* Pulse ring */
@@ -226,6 +276,23 @@ body {
 @keyframes border-rotate {
   0% { --angle: 0deg; }
   100% { --angle: 360deg; }
+}
+
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(124, 58, 237, 0.15), rgba(99, 102, 241, 0.05));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
 }
 
 /* Beam animation */

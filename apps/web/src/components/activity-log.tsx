@@ -92,12 +92,12 @@ function ThinkingLine({ startedAt, tokenChars }: { startedAt: number; tokenChars
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex items-center gap-2.5 py-1.5 px-2 -mx-2"
+      className="flex items-center gap-2.5 py-1.5 px-2 -mx-2 rounded-lg bg-gradient-to-r from-accent/[0.04] to-transparent"
     >
       <span className="thinking-sparkle text-accent text-[14px]">✶</span>
       <span className="text-[13px] text-text inline-flex items-center gap-0">
         <span className="thinking-fade" key={verbIndex}>{verbs[verbIndex]}</span>
-        <span className="thinking-dots text-text ml-px">
+        <span className="thinking-dots text-accent ml-px">
           <span className="dot dot-1">.</span>
           <span className="dot dot-2">.</span>
           <span className="dot dot-3">.</span>
@@ -134,7 +134,10 @@ export function ActivityLog({
   const lastIndex = activity.length - 1;
 
   return (
-    <div className="bg-bg-card border border-border rounded-xl overflow-hidden">
+    <div className={clsx(
+      "bg-bg-card border rounded-xl overflow-hidden transition-colors duration-300",
+      isRunning ? "border-accent/20" : "border-border"
+    )}>
       {/* Header */}
       <div className="px-4 py-2.5 border-b border-border flex items-center gap-2.5">
         {isRunning ? (

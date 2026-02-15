@@ -93,54 +93,57 @@ export function FileImpact({ findings }: FileImpactProps) {
   const maxCount = entries.length > 0 ? entries[0].count : 0;
 
   return (
-    <div className="bg-bg-card border border-border rounded-xl p-5">
-      <h3 className="uppercase text-[10px] tracking-wider font-semibold text-text-dim mb-4">
-        Most Impacted Files
-      </h3>
+    <div className="bg-bg-card/80 backdrop-blur-sm border border-border rounded-xl p-5 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.02] to-transparent pointer-events-none" />
+      <div className="relative">
+        <h3 className="uppercase text-[10px] tracking-wider font-semibold text-text-dim mb-4">
+          Most Impacted Files
+        </h3>
 
-      {entries.length === 0 ? (
-        <div className="flex items-center justify-center py-8">
-          <span className="text-xs text-text-muted">
-            No file-level findings detected
-          </span>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2.5">
-          {entries.map((entry, index) => {
-            const barColor =
-              SEVERITY_COLORS[entry.dominantSeverity] ?? "bg-blue-500";
-            const widthPercent = (entry.count / maxCount) * 100;
+        {entries.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <span className="text-xs text-text-muted">
+              No file-level findings detected
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2.5">
+            {entries.map((entry, index) => {
+              const barColor =
+                SEVERITY_COLORS[entry.dominantSeverity] ?? "bg-blue-500";
+              const widthPercent = (entry.count / maxCount) * 100;
 
-            return (
-              <div key={entry.path} className="flex items-center gap-3">
-                <span
-                  className="font-mono text-[11px] text-text-muted truncate w-40 shrink-0 text-right"
-                  title={entry.path}
-                >
-                  {entry.displayName}
-                </span>
+              return (
+                <div key={entry.path} className="flex items-center gap-3">
+                  <span
+                    className="font-mono text-[11px] text-text-muted truncate w-40 shrink-0 text-right"
+                    title={entry.path}
+                  >
+                    {entry.displayName}
+                  </span>
 
-                <div className="flex-1 h-5 rounded bg-bg-elevated overflow-hidden">
-                  <motion.div
-                    className={clsx("h-full rounded", barColor)}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${widthPercent}%` }}
-                    transition={{
-                      duration: 0.5,
-                      delay: index * 0.06,
-                      ease: [0.25, 0.46, 0.45, 0.94],
-                    }}
-                  />
+                  <div className="flex-1 h-5 rounded bg-bg-elevated overflow-hidden">
+                    <motion.div
+                      className={clsx("h-full rounded", barColor)}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${widthPercent}%` }}
+                      transition={{
+                        duration: 0.5,
+                        delay: index * 0.06,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                      }}
+                    />
+                  </div>
+
+                  <span className="text-xs font-medium tabular-nums text-text w-6 text-right shrink-0">
+                    <AnimatedNumber value={entry.count} />
+                  </span>
                 </div>
-
-                <span className="text-xs font-medium tabular-nums text-text w-6 text-right shrink-0">
-                  <AnimatedNumber value={entry.count} />
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
