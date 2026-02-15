@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shipwell — Full Codebase Autopilot",
+  title: "Shipwell | Full Codebase Autopilot",
   description: "Ingest entire codebases into Opus 4.6's 1M context window for deep cross-file analysis",
   icons: {
     icon: "/favicon.svg",

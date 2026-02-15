@@ -12,7 +12,7 @@ import { configShowCommand, configSetCommand, configDeleteCommand } from "./comm
 import { modelsCommand } from "./commands/models.js";
 import { getUser, getApiKey, getModel } from "./lib/store.js";
 
-const VERSION = "0.3.4";
+const VERSION = "0.3.5";
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
@@ -186,6 +186,13 @@ program
   .description("Sign out and clear stored credentials")
   .action(() => {
     logoutCommand();
+  });
+
+program
+  .command("delete-key")
+  .description("Remove stored Anthropic API key")
+  .action(() => {
+    configDeleteCommand("api-key");
   });
 
 program
