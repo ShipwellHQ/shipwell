@@ -3,26 +3,24 @@ import chalk from "chalk";
 import { ingestRepo, bundleCodebase, streamAnalysis, StreamingParser, getMaxCodebaseTokens } from "@shipwell/core";
 import type { Operation, Finding, MetricEvent } from "@shipwell/core";
 import { getApiKey, getModel, getUser } from "../lib/store.js";
+import { estimateCost, formatCost } from "../lib/pricing.js";
+import { promptConfirmation } from "../lib/prompts.js";
+import { formatSeverityRow, formatSummaryBox, formatFindingCard, formatMetric } from "../lib/formatters.js";
+import { writeReport, type ExportData } from "../lib/export.js";
 
-interface AnalyzeOptions {
+export interface AnalyzeOptions {
   apiKey?: string;
   target?: string;
   context?: string;
   model?: string;
   raw?: boolean;
+  yes?: boolean;
+  output?: string;
 }
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
 const bold = chalk.bold;
-
-const severityColor: Record<string, (s: string) => string> = {
-  critical: chalk.red.bold,
-  high: chalk.hex("#f97316").bold,
-  medium: chalk.yellow,
-  low: chalk.blue,
-  info: chalk.dim,
-};
 
 const opLabels: Record<string, string> = {
   audit: "Security Audit",
@@ -31,30 +29,6 @@ const opLabels: Record<string, string> = {
   docs: "Documentation",
   upgrade: "Dependency Upgrade",
 };
-
-function severityBadge(sev?: string): string {
-  if (!sev) return "";
-  const color = severityColor[sev] || chalk.dim;
-  return color(` [${sev.toUpperCase()}]`);
-}
-
-function formatFinding(f: Finding, i: number): string {
-  const lines: string[] = [];
-  const num = dim(`${String(i + 1).padStart(2)}.`);
-  const cross = f.crossFile ? accent(" ⟷ cross-file") : "";
-  lines.push(`  ${num} ${bold(f.title)}${severityBadge(f.severity)}${cross}`);
-  if (f.description) {
-    lines.push(`     ${dim(f.description)}`);
-  }
-  if (f.files.length > 0) {
-    lines.push(`     ${dim("files:")} ${f.files.map(file => chalk.cyan(file)).join(dim(", "))}`);
-  }
-  return lines.join("\n");
-}
-
-function formatMetric(m: MetricEvent): string {
-  return `  ${dim("•")} ${m.label}: ${chalk.red(m.before)} ${dim("→")} ${chalk.green(m.after)}${m.unit ? dim(` ${m.unit}`) : ""}`;
-}
 
 export async function analyzeCommand(operation: Operation, source: string, options: AnalyzeOptions) {
   // Check login
@@ -81,18 +55,27 @@ export async function analyzeCommand(operation: Operation, source: string, optio
 
   // Header
   console.log();
-  console.log(accent("  ⛵ Shipwell"), dim("— Full Codebase Autopilot"));
-  console.log(dim(`  ${opLabels[operation] || operation} · ${model}`));
+  console.log(accent("  \u26F5 Shipwell"), dim("\u2014 Full Codebase Autopilot"));
+  console.log(dim(`  ${opLabels[operation] || operation} \u00B7 ${model}`));
   console.log();
 
-  // Phase 1: Ingest
-  const spinner = ora({ text: "Reading repository...", color: "cyan", prefixText: "  " }).start();
+  // Phase 1: Ingest (with progress callbacks)
+  const spinner = ora({ text: "Scanning repository...", color: "cyan", prefixText: "  " }).start();
 
   let ingestResult: Awaited<ReturnType<typeof ingestRepo>>;
   try {
-    ingestResult = await ingestRepo({ source, maxTokens: getMaxCodebaseTokens(model) });
+    ingestResult = await ingestRepo({
+      source,
+      maxTokens: getMaxCodebaseTokens(model),
+      onScanProgress: (count) => {
+        spinner.text = `Scanning... ${count} files found`;
+      },
+      onReadProgress: (current, total) => {
+        spinner.text = `Reading files [${current}/${total}]...`;
+      },
+    });
     spinner.succeed(
-      `Read ${bold(ingestResult.totalFiles)} files ${dim(`(${ingestResult.skippedFiles} skipped, ~${Math.round(ingestResult.totalTokens / 1000)}K tokens)`)}`
+      `Read ${bold(String(ingestResult.totalFiles))} files ${dim(`(${ingestResult.skippedFiles} skipped, ~${Math.round(ingestResult.totalTokens / 1000)}K tokens)`)}`
     );
   } catch (err: any) {
     spinner.fail(`Failed to read repository: ${err.message}`);
@@ -102,9 +85,22 @@ export async function analyzeCommand(operation: Operation, source: string, optio
   // Phase 2: Bundle
   const bundleSpinner = ora({ text: "Bundling codebase...", color: "cyan", prefixText: "  " }).start();
   const bundle = bundleCodebase(ingestResult!);
+  bundleSpinner.text = `Bundling ${bundle.includedFiles} files (~${Math.round(bundle.totalTokens / 1000)}K tokens)...`;
   bundleSpinner.succeed(
-    `Bundled ${bold(bundle.includedFiles)} files ${dim(`(~${Math.round(bundle.totalTokens / 1000)}K tokens)`)}`
+    `Bundled ${bold(String(bundle.includedFiles))} files ${dim(`(~${Math.round(bundle.totalTokens / 1000)}K tokens)`)}`
   );
+
+  // Cost estimation + confirmation
+  const { cost, outputTokens } = estimateCost(bundle.totalTokens, model, operation);
+  if (!options.yes) {
+    console.log();
+    console.log(`  ${dim("Estimated cost:")} ${bold(`~${formatCost(cost)}`)} ${dim(`(${Math.round(bundle.totalTokens / 1000)}K input + ~${Math.round(outputTokens / 1000)}K output tokens)`)}`);
+    const proceed = await promptConfirmation("Proceed?");
+    if (!proceed) {
+      console.log(dim("\n  Cancelled.\n"));
+      process.exit(0);
+    }
+  }
 
   // Phase 3: Analyze
   const analyzeSpinner = ora({ text: `Running ${operation} analysis...`, color: "magenta", prefixText: "  " }).start();
@@ -142,34 +138,22 @@ export async function analyzeCommand(operation: Operation, source: string, optio
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
   analyzeSpinner.succeed(`Analysis complete ${dim(`(${elapsed}s)`)}`);
 
-  // Results
+  // Results — Rich output
   console.log();
-  console.log(accent("  ─── Results ───────────────────────────────────────────"));
+  console.log(accent("  \u2500\u2500\u2500 Results \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"));
   console.log();
 
-  // Findings
+  // Severity row
   if (allFindings.length > 0) {
-    const critCount = allFindings.filter(f => f.severity === "critical").length;
-    const highCount = allFindings.filter(f => f.severity === "high").length;
-    const medCount = allFindings.filter(f => f.severity === "medium").length;
-    const lowCount = allFindings.filter(f => f.severity === "low").length;
+    console.log(`  ${formatSeverityRow(allFindings)}`);
     const crossCount = allFindings.filter(f => f.crossFile).length;
-
-    const counts = [
-      critCount > 0 ? chalk.red(`${critCount} critical`) : null,
-      highCount > 0 ? chalk.hex("#f97316")(`${highCount} high`) : null,
-      medCount > 0 ? chalk.yellow(`${medCount} medium`) : null,
-      lowCount > 0 ? chalk.blue(`${lowCount} low`) : null,
-    ].filter(Boolean).join(dim(" · "));
-
-    console.log(`  ${bold(`${allFindings.length} Findings`)} ${dim("(")}${counts}${dim(")")}`);
     if (crossCount > 0) {
-      console.log(`  ${accent(`${crossCount} cross-file issues`)}`);
+      console.log(`  ${accent(`\u27F7  ${crossCount} cross-file issues`)}`);
     }
     console.log();
 
     for (let i = 0; i < allFindings.length; i++) {
-      console.log(formatFinding(allFindings[i], i));
+      console.log(formatFindingCard(allFindings[i], i));
       if (i < allFindings.length - 1) console.log();
     }
   } else {
@@ -193,9 +177,52 @@ export async function analyzeCommand(operation: Operation, source: string, optio
     console.log(`  ${dim(summary)}`);
   }
 
-  // Footer
+  // Summary box
   console.log();
-  console.log(accent("  ─────────────────────────────────────────────────────"));
-  console.log(`  ${chalk.green("✓")} ${bold(`${allFindings.length} findings`)} in ${elapsed}s · ${dim(`${bundle.includedFiles} files · ~${Math.round(bundle.totalTokens / 1000)}K tokens`)}`);
+  const critCount = allFindings.filter(f => f.severity === "critical").length;
+  const highCount = allFindings.filter(f => f.severity === "high").length;
+  const medCount = allFindings.filter(f => f.severity === "medium").length;
+  const lowCount = allFindings.filter(f => f.severity === "low").length;
+  const crossFileCount = allFindings.filter(f => f.crossFile).length;
+
+  console.log(formatSummaryBox({
+    totalFindings: allFindings.length,
+    critCount,
+    highCount,
+    medCount,
+    lowCount,
+    crossFileCount,
+    filesAnalyzed: bundle.includedFiles,
+    tokensK: Math.round(bundle.totalTokens / 1000),
+    elapsed,
+  }));
   console.log();
+
+  // Export report if --output specified
+  if (options.output) {
+    const exportData: ExportData = {
+      operation,
+      source,
+      model,
+      timestamp: new Date().toISOString().split("T")[0],
+      findings: allFindings,
+      metrics: allMetrics,
+      summary: summary || null,
+      stats: {
+        totalFindings: allFindings.length,
+        crossFileCount,
+        duration: parseFloat(elapsed),
+        filesAnalyzed: bundle.includedFiles,
+        tokensProcessed: bundle.totalTokens,
+      },
+    };
+
+    try {
+      await writeReport(exportData, options.output);
+      console.log(`  ${chalk.green("\u2713")} Report saved to ${chalk.cyan(options.output)}`);
+      console.log();
+    } catch (err: any) {
+      console.error(`  ${chalk.red("\u2717")} Failed to write report: ${err.message}`);
+    }
+  }
 }

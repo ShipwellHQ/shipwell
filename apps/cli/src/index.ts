@@ -4,6 +4,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from "@shipwell/core";
 import { analyzeCommand } from "./commands/analyze.js";
+import { interactiveCommand } from "./commands/interactive.js";
 import { loginCommand } from "./commands/login.js";
 import { logoutCommand } from "./commands/logout.js";
 import { whoamiCommand } from "./commands/whoami.js";
@@ -11,7 +12,7 @@ import { configShowCommand, configSetCommand, configDeleteCommand } from "./comm
 import { modelsCommand } from "./commands/models.js";
 import { getUser, getApiKey, getModel } from "./lib/store.js";
 
-const VERSION = "0.2.9";
+const VERSION = "0.3.0";
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
@@ -129,7 +130,11 @@ program
   .description("Full Codebase Autopilot — deep cross-file analysis powered by Claude")
   .version(VERSION)
   .action(() => {
-    showBanner();
+    if (process.argv.length === 2) {
+      interactiveCommand();
+    } else {
+      showBanner();
+    }
   });
 
 // ─── Analysis commands ──────────────────────────────────────
@@ -154,6 +159,8 @@ for (const op of operations) {
     .option("-t, --target <target>", "Migration target (for migrate)")
     .option("-c, --context <context>", "Additional context for the analysis")
     .option("-r, --raw", "Also print raw streaming output")
+    .option("-y, --yes", "Skip cost confirmation prompt")
+    .option("-o, --output <path>", "Export report to file (.md or .json)")
     .action((source, options) => {
       analyzeCommand(op, source, options);
     });

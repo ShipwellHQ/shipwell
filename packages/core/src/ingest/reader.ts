@@ -86,23 +86,29 @@ export async function ingestRepo(options: IngestOptions): Promise<IngestResult> 
     absolute: false,
   });
 
-  // Filter and read files
-  const files: IngestedFile[] = [];
+  options.onScanProgress?.(allFiles.length);
+
+  // First pass: filter to eligible files
+  const eligible: string[] = [];
   let skippedFiles = 0;
 
   for (const filePath of allFiles) {
-    // Apply ignore filter
     if (filter.ignores(filePath)) {
       skippedFiles++;
       continue;
     }
-
-    // Check if it's a code file
     if (!isCodeFile(filePath)) {
       skippedFiles++;
       continue;
     }
+    eligible.push(filePath);
+  }
 
+  // Second pass: read files with progress
+  const files: IngestedFile[] = [];
+
+  for (let i = 0; i < eligible.length; i++) {
+    const filePath = eligible[i];
     const fullPath = join(repoPath, filePath);
 
     // Check file size
@@ -110,10 +116,12 @@ export async function ingestRepo(options: IngestOptions): Promise<IngestResult> 
       const fileStat = await stat(fullPath);
       if (fileStat.size > MAX_FILE_SIZE) {
         skippedFiles++;
+        options.onReadProgress?.(i + 1, eligible.length);
         continue;
       }
     } catch {
       skippedFiles++;
+      options.onReadProgress?.(i + 1, eligible.length);
       continue;
     }
 
@@ -123,6 +131,7 @@ export async function ingestRepo(options: IngestOptions): Promise<IngestResult> 
       // Skip binary-looking files
       if (content.includes("\0")) {
         skippedFiles++;
+        options.onReadProgress?.(i + 1, eligible.length);
         continue;
       }
 
@@ -139,6 +148,8 @@ export async function ingestRepo(options: IngestOptions): Promise<IngestResult> 
     } catch {
       skippedFiles++;
     }
+
+    options.onReadProgress?.(i + 1, eligible.length);
   }
 
   // Sort by priority (highest first)

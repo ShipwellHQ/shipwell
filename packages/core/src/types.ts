@@ -9,6 +9,10 @@ export interface IngestOptions {
   include?: string[];
   /** File patterns to exclude (globs) */
   exclude?: string[];
+  /** Called after glob scan with total files found */
+  onScanProgress?: (filesFound: number) => void;
+  /** Called after each file is read */
+  onReadProgress?: (current: number, total: number) => void;
 }
 
 export interface IngestedFile {
