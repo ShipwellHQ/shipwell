@@ -149,10 +149,26 @@ export default function HomePage() {
                   <span className="block gradient-text">One deep analysis.</span>
                 </h1>
 
-                <p className="text-text-muted text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+                <p className="text-text-muted text-lg md:text-xl leading-relaxed mb-6 max-w-2xl mx-auto">
                   Feed hundreds of files into a single prompt. Get cross-file security audits,
                   migration plans, refactoring insights, and more &mdash; all streaming in real-time.
                 </p>
+
+                {/* Capability pills */}
+                <div className="flex items-center justify-center gap-2.5 mb-10 flex-wrap">
+                  {[
+                    { label: "1M Context Window", color: "text-purple-400 bg-purple-500/10 border-purple-500/20" },
+                    { label: "128K Output", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                    { label: "Cross-File Analysis", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                  ].map((pill) => (
+                    <span
+                      key={pill.label}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-medium border ${pill.color}`}
+                    >
+                      {pill.label}
+                    </span>
+                  ))}
+                </div>
 
                 {/* CTAs */}
                 {!loading && (
@@ -176,6 +192,14 @@ export default function HomePage() {
                     >
                       <Terminal className="w-4.5 h-4.5" />
                       CLI Docs
+                    </Link>
+                    <Link
+                      href="/analysis?demo=true"
+                      className="inline-flex items-center gap-2 text-accent hover:text-accent-hover text-[14px] font-medium transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Watch Live Demo
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </motion.div>
                 )}

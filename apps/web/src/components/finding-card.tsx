@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, Info, Lightbulb, FileCode2, Link2, ChevronDown } from "lucide-react";
+import { AlertTriangle, Info, Lightbulb, FileCode2, Link2, ChevronDown, Copy, Check } from "lucide-react";
 import type { Finding } from "@shipwell/core/client";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { DiffViewer } from "./diff-viewer";
 
 const severityConfig = {
@@ -25,6 +25,14 @@ const typeIcons = {
 
 export function FindingCard({ finding, index }: { finding: Finding; index: number }) {
   const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    if (!finding.diff) return;
+    navigator.clipboard.writeText(finding.diff);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [finding.diff]);
   const severity = finding.severity || "info";
   const config = severityConfig[severity];
   const Icon = typeIcons[finding.type] || Info;
@@ -78,13 +86,32 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
       {/* Diff expander */}
       {finding.diff && (
         <div className="border-t border-border/50">
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-2 w-full px-4 py-2 text-[12px] text-accent hover:bg-accent/5 transition-colors"
-          >
-            <ChevronDown className={clsx("w-3.5 h-3.5 transition-transform", expanded && "rotate-180")} />
-            {expanded ? "Hide" : "View"} suggested fix
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="flex items-center gap-2 flex-1 px-4 py-2 text-[12px] text-accent hover:bg-accent/5 transition-colors"
+            >
+              <ChevronDown className={clsx("w-3.5 h-3.5 transition-transform", expanded && "rotate-180")} />
+              {expanded ? "Hide" : "View"} suggested fix
+            </button>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 px-3 py-2 text-[12px] text-text-muted hover:text-accent hover:bg-accent/5 transition-colors"
+              title="Copy diff to clipboard"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-success" />
+                  <span className="text-success">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy fix</span>
+                </>
+              )}
+            </button>
+          </div>
           {expanded && (
             <div className="px-4 pb-3">
               <DiffViewer diff={finding.diff} />

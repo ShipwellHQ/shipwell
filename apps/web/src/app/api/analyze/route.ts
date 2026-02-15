@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { ingestRepo, bundleCodebase, streamAnalysis, StreamingParser, DEFAULT_MODEL, getMaxCodebaseTokens } from "@shipwell/core";
+import { ingestRepo, bundleCodebase, streamAnalysis, StreamingParser, DEFAULT_MODEL, getMaxCodebaseTokens, getMaxOutputTokens } from "@shipwell/core";
 import type { Operation } from "@shipwell/core";
 
 export const maxDuration = 300; // 5 min max for long analyses
@@ -46,6 +46,13 @@ export async function POST(request: NextRequest) {
         send("status", {
           phase: "analyzing",
           message: `Bundled ${bundle.includedFiles} files (~${Math.round(bundle.totalTokens / 1000)}K tokens)`,
+        });
+
+        // Send token info for gauge
+        send("token_info", {
+          codebaseTokens: bundle.totalTokens,
+          maxCodebaseTokens,
+          maxOutputTokens: getMaxOutputTokens(selectedModel),
         });
 
         // Phase 3: Stream analysis

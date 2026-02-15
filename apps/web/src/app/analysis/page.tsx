@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowRight, GitBranch, BookOpen, PackageCheck,
   Play, Square, Loader2, Link2,
   AlertTriangle, Scan, FileCode2, ChevronRight, Key, Terminal, ExternalLink,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { AuthGuard } from "@/components/auth-guard";
 import { Navbar } from "@/components/navbar";
@@ -15,12 +17,16 @@ import { ActivityLog } from "@/components/activity-log";
 import { useSSE } from "@/hooks/use-sse";
 import { useApiKey } from "@/hooks/use-api-key";
 import { FindingCard } from "@/components/finding-card";
+import { AnimatedNumber } from "@/components/animated-number";
 import { MetricCard } from "@/components/metric-card";
 import { StreamingOutput } from "@/components/streaming-output";
 import { HealthScore } from "@/components/health-score";
 import { SeverityBar } from "@/components/severity-bar";
 import { FileImpact } from "@/components/file-impact";
+import { CrossFileGraph } from "@/components/cross-file-graph";
 import { ExportButton } from "@/components/export-button";
+import { TokenGauge } from "@/components/token-gauge";
+import { useToasts, ToastContainer } from "@/components/toast";
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from "@shipwell/core/client";
 
 const operations = [
@@ -36,7 +42,9 @@ type Tab = "findings" | "raw" | "metrics";
 export default function AnalysisPage() {
   return (
     <AuthGuard>
-      <AnalysisContent />
+      <Suspense>
+        <AnalysisContent />
+      </Suspense>
     </AuthGuard>
   );
 }
@@ -52,6 +60,31 @@ function AnalysisContent() {
 
   const sse = useSSE();
   const { apiKey, isConnected, loaded } = useApiKey();
+  const { toasts, addToast, dismissToast } = useToasts();
+  const prevFindingCount = useRef(0);
+  const searchParams = useSearchParams();
+  const demoTriggered = useRef(false);
+
+  // Auto-start demo mode from URL param
+  useEffect(() => {
+    if (searchParams.get("demo") === "true" && !demoTriggered.current && sse.status === "idle") {
+      demoTriggered.current = true;
+      sse.loadDemo();
+    }
+  }, [searchParams, sse.status, sse.loadDemo]);
+
+  // Toast for critical/high findings
+  useEffect(() => {
+    if (sse.findings.length > prevFindingCount.current) {
+      const newFindings = sse.findings.slice(prevFindingCount.current);
+      for (const f of newFindings) {
+        if (f.severity === "critical" || f.severity === "high") {
+          addToast(f.severity, f.title);
+        }
+      }
+    }
+    prevFindingCount.current = sse.findings.length;
+  }, [sse.findings, addToast]);
 
   const model = typeof window !== "undefined"
     ? localStorage.getItem("shipwell_model") || DEFAULT_MODEL
@@ -194,6 +227,22 @@ function AnalysisContent() {
               />
             </div>
 
+            {/* Demo Button */}
+            {!isRunning && sse.status !== "streaming" && (
+              <button
+                onClick={() => sse.loadDemo()}
+                className="flex items-center gap-2.5 px-3 py-2.5 bg-purple-500/5 border border-purple-500/15 rounded-xl text-[12px] hover:bg-purple-500/10 transition-colors group w-full text-left"
+              >
+                <div className="w-7 h-7 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12px] font-medium text-text leading-tight">Load Demo</div>
+                  <div className="text-[10px] text-text-dim leading-tight">See a sample analysis</div>
+                </div>
+              </button>
+            )}
+
             {/* CLI Link */}
             <Link
               href="/cli"
@@ -273,6 +322,11 @@ function AnalysisContent() {
               {/* Activity Log */}
               <ActivityLog activity={sse.activity} isRunning={isRunning} startedAt={sse.startedAt} tokenChars={sse.rawText.length} />
 
+              {/* Token Gauge */}
+              {sse.tokenInfo && (
+                <TokenGauge tokenInfo={sse.tokenInfo} outputChars={sse.rawText.length} />
+              )}
+
               {/* Error Banner */}
               {sse.error && (
                 <motion.div
@@ -313,6 +367,11 @@ function AnalysisContent() {
                 </motion.div>
               )}
 
+              {/* Cross-File Graph */}
+              {crossFileCount > 0 && (
+                <CrossFileGraph findings={sse.findings} />
+              )}
+
               {/* Tabs */}
               <div className="flex items-center gap-0.5 border-b border-border">
                 {([
@@ -338,7 +397,7 @@ function AnalysisContent() {
                           ? "bg-accent/15 text-accent"
                           : "bg-bg-elevated text-text-dim"
                       )}>
-                        {tab.count}
+                        <AnimatedNumber value={tab.count} />
                       </span>
                     )}
                   </button>
@@ -474,6 +533,9 @@ function AnalysisContent() {
           )}
         </main>
       </div>
+
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

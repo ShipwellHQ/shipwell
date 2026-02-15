@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { AnimatedNumber } from "./animated-number";
 
 interface FileImpactProps {
   findings: Array<{ files: string[]; severity?: string }>;
@@ -133,7 +134,7 @@ export function FileImpact({ findings }: FileImpactProps) {
                 </div>
 
                 <span className="text-xs font-medium tabular-nums text-text w-6 text-right shrink-0">
-                  {entry.count}
+                  <AnimatedNumber value={entry.count} />
                 </span>
               </div>
             );

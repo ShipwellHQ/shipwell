@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { AnimatedNumber } from "./animated-number";
 
 interface HealthScoreProps {
   before: number;
@@ -85,17 +86,17 @@ export function HealthScore({ before, after }: HealthScoreProps) {
                 scoreColor(clampedBefore),
               )}
             >
-              {clampedBefore}
+              <AnimatedNumber value={clampedBefore} />
             </span>
           </div>
         </div>
 
         {/* Before -> After */}
         <div className="mt-3 flex items-center gap-1.5 text-sm tabular-nums">
-          <span className="font-semibold text-text-muted">{clampedBefore}</span>
+          <span className="font-semibold text-text-muted"><AnimatedNumber value={clampedBefore} /></span>
           <span className="text-text-dim select-none">&rarr;</span>
           <span className={clsx("font-semibold", scoreColor(clampedAfter))}>
-            {clampedAfter}
+            <AnimatedNumber value={clampedAfter} />
           </span>
         </div>
       </div>

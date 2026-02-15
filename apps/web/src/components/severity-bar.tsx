@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { AnimatedNumber } from "./animated-number";
 
 interface SeverityBarProps {
   critical: number;
@@ -82,7 +83,7 @@ export function SeverityBar({ critical, high, medium, low, info }: SeverityBarPr
               />
               <span className="text-xs text-text-muted">{severity.label}</span>
               <span className="text-xs font-medium text-text">
-                {count}
+                <AnimatedNumber value={count} />
               </span>
             </div>
           );

@@ -1,0 +1,145 @@
+{
+  "findings": [
+    {
+      "id": "demo-1",
+      "type": "issue",
+      "severity": "critical",
+      "title": "SQL Injection via unsanitized user input in query builder",
+      "description": "User-supplied filter parameters in `buildQuery()` are concatenated directly into raw SQL strings. An attacker can inject arbitrary SQL via the `sort` and `filter` query parameters, which flow through 3 files before reaching the database layer.",
+      "files": ["src/db/queries.ts", "src/routes/api/users.ts", "src/middleware/parse-filters.ts"],
+      "crossFile": true,
+      "diff": "--- a/src/db/queries.ts\n+++ b/src/db/queries.ts\n@@ -45,7 +45,8 @@\n-  const result = await db.raw(`SELECT * FROM ${table} WHERE ${filters} ORDER BY ${sort}`);\n+  const result = await db(table)\n+    .where(sanitizeFilters(filters))\n+    .orderBy(sanitizeSort(sort));",
+      "category": "Security"
+    },
+    {
+      "id": "demo-2",
+      "type": "issue",
+      "severity": "critical",
+      "title": "Hardcoded JWT secret in authentication configuration",
+      "description": "The JWT signing secret is hardcoded as a string literal `'super-secret-key-123'` in the auth config. This means all tokens signed in any environment use the same predictable secret, allowing token forgery.",
+      "files": ["src/config/auth.ts"],
+      "crossFile": false,
+      "diff": "--- a/src/config/auth.ts\n+++ b/src/config/auth.ts\n@@ -10,7 +10,7 @@\n-  jwtSecret: 'super-secret-key-123',\n+  jwtSecret: process.env.JWT_SECRET ?? throwEnvError('JWT_SECRET'),",
+      "category": "Security"
+    },
+    {
+      "id": "demo-3",
+      "type": "issue",
+      "severity": "high",
+      "title": "Missing rate limiting on all API endpoints",
+      "description": "No rate limiting middleware is applied to any route. The Express app initializes with CORS and body parser but has no throttle protection, making it vulnerable to brute-force and DDoS attacks.",
+      "files": ["src/app.ts", "src/routes/api/auth.ts", "src/routes/api/users.ts"],
+      "crossFile": true,
+      "diff": "--- a/src/app.ts\n+++ b/src/app.ts\n@@ -8,6 +8,7 @@\n+import rateLimit from 'express-rate-limit';\n \n app.use(cors());\n app.use(express.json());\n+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));",
+      "category": "Security"
+    },
+    {
+      "id": "demo-4",
+      "type": "issue",
+      "severity": "high",
+      "title": "Prototype pollution in deep merge utility",
+      "description": "The `deepMerge` function recursively assigns properties without checking for `__proto__`, `constructor`, or `prototype` keys. An attacker can pollute Object.prototype via API payloads that pass through config merging.",
+      "files": ["src/utils/merge.ts", "src/config/loader.ts"],
+      "crossFile": true,
+      "diff": "--- a/src/utils/merge.ts\n+++ b/src/utils/merge.ts\n@@ -12,6 +12,7 @@\n function deepMerge(target: any, source: any) {\n   for (const key of Object.keys(source)) {\n+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;\n     if (isObject(source[key])) {",
+      "category": "Security"
+    },
+    {
+      "id": "demo-5",
+      "type": "issue",
+      "severity": "high",
+      "title": "Sensitive data logged in production error handler",
+      "description": "The global error handler logs the full request body including passwords, tokens, and PII to stdout. In production with centralized logging, this creates a data exfiltration risk via log aggregators.",
+      "files": ["src/middleware/error-handler.ts"],
+      "crossFile": false,
+      "diff": "--- a/src/middleware/error-handler.ts\n+++ b/src/middleware/error-handler.ts\n@@ -5,7 +5,7 @@\n-  console.error('Request failed:', { body: req.body, headers: req.headers, error: err });\n+  console.error('Request failed:', { path: req.path, method: req.method, error: err.message });",
+      "category": "Security"
+    },
+    {
+      "id": "demo-6",
+      "type": "issue",
+      "severity": "medium",
+      "title": "Circular dependency between User and Organization modules",
+      "description": "The User model imports Organization for eager loading, while Organization imports User for member validation. This creates a circular require chain that causes subtle initialization bugs in testing and can lead to undefined references at runtime.",
+      "files": ["src/models/user.ts", "src/models/organization.ts"],
+      "crossFile": true,
+      "category": "Architecture"
+    },
+    {
+      "id": "demo-7",
+      "type": "issue",
+      "severity": "medium",
+      "title": "Unbounded file upload with no size validation",
+      "description": "The file upload endpoint accepts multipart form data with no max file size configured. A single request can upload gigabytes of data, potentially exhausting disk space and crashing the server.",
+      "files": ["src/routes/api/uploads.ts"],
+      "crossFile": false,
+      "diff": "--- a/src/routes/api/uploads.ts\n+++ b/src/routes/api/uploads.ts\n@@ -3,7 +3,7 @@\n-const upload = multer({ dest: 'uploads/' });\n+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });",
+      "category": "Security"
+    },
+    {
+      "id": "demo-8",
+      "type": "suggestion",
+      "severity": "medium",
+      "title": "Database connections not pooled — new connection per request",
+      "description": "Each API request creates a new database connection via `createConnection()` instead of using a connection pool. Under load, this exhausts the database's max_connections limit and causes cascading failures.",
+      "files": ["src/db/connection.ts", "src/routes/api/users.ts", "src/routes/api/posts.ts"],
+      "crossFile": true,
+      "diff": "--- a/src/db/connection.ts\n+++ b/src/db/connection.ts\n@@ -4,8 +4,10 @@\n-export function getDb() {\n-  return createConnection(DATABASE_URL);\n+const pool = createPool(DATABASE_URL, { min: 2, max: 20 });\n+export function getDb() {\n+  return pool;",
+      "category": "Performance"
+    },
+    {
+      "id": "demo-9",
+      "type": "issue",
+      "severity": "low",
+      "title": "Inconsistent error response format across endpoints",
+      "description": "Some endpoints return `{ error: string }`, others return `{ message: string, code: number }`, and auth routes return `{ detail: string }`. This inconsistency makes client-side error handling fragile.",
+      "files": ["src/routes/api/auth.ts", "src/routes/api/users.ts", "src/routes/api/posts.ts"],
+      "crossFile": true,
+      "category": "Code Quality"
+    },
+    {
+      "id": "demo-10",
+      "type": "suggestion",
+      "severity": "low",
+      "title": "TypeScript strict mode disabled — 47 implicit any warnings",
+      "description": "tsconfig.json has `strict: false`. Enabling strict mode reveals 47 implicit `any` types, 12 missing null checks, and 8 unused variables across the codebase. This is a significant source of runtime errors.",
+      "files": ["tsconfig.json"],
+      "crossFile": false,
+      "category": "Code Quality"
+    },
+    {
+      "id": "demo-11",
+      "type": "suggestion",
+      "severity": "low",
+      "title": "Dead code: unused admin routes and middleware",
+      "description": "The `src/routes/admin/` directory contains 340 lines of route handlers and a custom RBAC middleware that are never imported or mounted. These were likely from a removed feature but add maintenance burden.",
+      "files": ["src/routes/admin/index.ts", "src/middleware/rbac.ts"],
+      "crossFile": true,
+      "category": "Code Quality"
+    },
+    {
+      "id": "demo-12",
+      "type": "suggestion",
+      "severity": "info",
+      "title": "Missing health check endpoint for container orchestration",
+      "description": "No `/health` or `/ready` endpoint exists. Kubernetes/Docker health probes will fail or use TCP checks that don't verify database connectivity or application readiness.",
+      "files": ["src/app.ts"],
+      "crossFile": false,
+      "category": "DevOps"
+    }
+  ],
+  "metrics": [
+    { "label": "Health Score", "before": 42, "after": 78, "unit": "pts" },
+    { "label": "Critical Issues", "before": 2, "after": 0, "unit": "count" },
+    { "label": "Security Score", "before": 35, "after": 82, "unit": "pts" },
+    { "label": "Code Quality", "before": 58, "after": 71, "unit": "pts" },
+    { "label": "Cross-file Issues", "before": 6, "after": 2, "unit": "count" },
+    { "label": "Test Coverage Gap", "before": 67, "after": 45, "unit": "%" }
+  ],
+  "summary": "This audit identified 12 findings across 15 files, including 2 critical vulnerabilities (SQL injection and hardcoded secrets), 3 high-severity issues (missing rate limiting, prototype pollution, and sensitive data logging), and several medium/low code quality concerns. The codebase has significant cross-file security issues where data flows through multiple modules without validation. Implementing the suggested fixes would raise the health score from 42 to an estimated 78. Priority actions: patch the SQL injection immediately, rotate the JWT secret, and add rate limiting.",
+  "tokenInfo": {
+    "codebaseTokens": 187420,
+    "maxCodebaseTokens": 854000,
+    "maxOutputTokens": 128000
+  }
+}
