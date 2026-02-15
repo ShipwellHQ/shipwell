@@ -91,7 +91,7 @@ function AnalysisContent() {
     : DEFAULT_MODEL;
 
   const handleStart = () => {
-    if (!source || !apiKey) return;
+    if (!source || !apiKey || !isGitHubUrl) return;
     sse.start({
       operation,
       source,
@@ -294,7 +294,7 @@ function AnalysisContent() {
             ) : (
               <button
                 onClick={handleStart}
-                disabled={!source || !isConnected}
+                disabled={!isReady}
                 className={clsx(
                   "flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 text-[14px]",
                   isReady ? "glow-pulse" : "glow-accent"
