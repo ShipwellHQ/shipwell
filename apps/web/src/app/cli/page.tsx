@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   Terminal, Copy, Check, Shield, ArrowRight, GitBranch,
   BookOpen, PackageCheck, LogIn, Settings, Cpu, RefreshCw,
-  ChevronRight, Download, Ship, ExternalLink,
+  ChevronRight, Download, Ship, ExternalLink, GitPullRequest,
 } from "lucide-react";
 import Link from "next/link";
 import { Footer } from "@/components/footer";
@@ -91,6 +91,7 @@ const flags = [
   { flag: "-r, --raw", desc: "Print raw streaming output alongside formatted results" },
   { flag: "-y, --yes", desc: "Skip cost confirmation prompt" },
   { flag: "-o, --output <path>", desc: "Export report to file (.md or .json)" },
+  { flag: "--create-pr", desc: "Create a GitHub PR with auto-fixes after analysis" },
 ];
 
 // ── Page ───────────────────────────────────────────────────
@@ -329,6 +330,69 @@ export default function CliPage() {
         </div>
       </div>
 
+      {/* Auto-Fix PRs */}
+      <div className="max-w-4xl mx-auto px-6 py-20 w-full">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-2xl font-bold mb-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <GitPullRequest className="w-4 h-4 text-accent" />
+            </div>
+            Auto-Fix PRs
+          </h2>
+          <p className="text-text-muted text-sm mb-10 ml-11">
+            After analysis, if fixable findings are detected, the CLI can create a GitHub PR with suggested fixes — authored by the <span className="text-accent font-medium">ShipwellHQ</span> GitHub App.
+          </p>
+
+          <div className="space-y-4">
+            <div className="border rounded-xl p-5 bg-accent/5 border-accent/15">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                  <GitPullRequest className="w-5 h-5 text-accent" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-text-muted leading-relaxed mb-4">
+                    Append <code className="text-accent bg-accent/10 px-1.5 py-0.5 rounded text-xs">--create-pr</code> to any analysis command. The CLI will prompt to create a PR when fixable issues are found.
+                  </p>
+                  <div className="space-y-2">
+                    <CodeBlock copyText="shipwell audit https://github.com/acme/api --create-pr">{`shipwell audit https://github.com/acme/api --create-pr`}</CodeBlock>
+                    <CodeBlock copyText="shipwell audit ./my-project --create-pr --yes">{`shipwell audit ./my-project --create-pr --yes`}</CodeBlock>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-bg-card border border-border rounded-xl p-4 text-[13px]">
+              <div className="font-mono text-text-dim leading-relaxed">
+                <div><span className="text-success">{"  \u2714"}</span> Repository: <span className="text-accent">https://github.com/acme/api</span></div>
+                <div><span className="text-success">{"  \u2714"}</span> PR #42 created</div>
+                <div className="text-text-dim">{"  \u2192 "}
+                  <span className="text-cyan-400">https://github.com/acme/api/pull/42</span>
+                </div>
+                <div className="text-text-dim">{"  Applied: 8 \u00b7 Skipped: 2 \u00b7 Failed: 2"}</div>
+              </div>
+            </div>
+
+            <p className="text-text-dim text-xs ml-1">
+              Prerequisite: The{" "}
+              <a
+                href="https://github.com/apps/shipwellhq"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                ShipwellHQ GitHub App
+              </a>{" "}
+              must be installed on the target repository.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
       {/* Commands */}
       <div className="max-w-4xl mx-auto px-6 py-20 w-full">
         <motion.div
@@ -426,10 +490,11 @@ export default function CliPage() {
             {[
               { env: "ANTHROPIC_API_KEY", desc: "Your Anthropic API key (overrides stored config)" },
               { env: "SHIPWELL_MODEL", desc: "Default model ID (overrides stored config)" },
-            ].map((e, i) => (
+              { env: "SHIPWELL_API_URL", desc: "API base URL for PR creation (default: https://shipwell.app)" },
+            ].map((e, i, arr) => (
               <div
                 key={e.env}
-                className={`flex items-center gap-4 px-5 py-3.5 ${i === 0 ? "border-b border-border" : ""}`}
+                className={`flex items-center gap-4 px-5 py-3.5 ${i !== arr.length - 1 ? "border-b border-border" : ""}`}
               >
                 <code className="text-[13px] font-mono text-amber-400 flex-[2] min-w-0">{e.env}</code>
                 <span className="text-[13px] text-text-muted flex-[3] min-w-0">{e.desc}</span>
