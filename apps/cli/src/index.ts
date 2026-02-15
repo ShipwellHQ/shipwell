@@ -12,7 +12,7 @@ import { configShowCommand, configSetCommand, configDeleteCommand } from "./comm
 import { modelsCommand } from "./commands/models.js";
 import { getUser, getApiKey, getModel } from "./lib/store.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
@@ -130,11 +130,7 @@ program
   .description("Full Codebase Autopilot — deep cross-file analysis powered by Claude")
   .version(VERSION)
   .action(() => {
-    if (process.argv.length === 2) {
-      interactiveCommand();
-    } else {
-      showBanner();
-    }
+    showBanner();
   });
 
 // ─── Analysis commands ──────────────────────────────────────
@@ -165,6 +161,16 @@ for (const op of operations) {
       analyzeCommand(op, source, options);
     });
 }
+
+// ─── Interactive mode ───────────────────────────────────────
+
+program
+  .command("interactive")
+  .alias("i")
+  .description("Launch interactive guided mode")
+  .action(() => {
+    interactiveCommand();
+  });
 
 // ─── Auth commands ──────────────────────────────────────────
 

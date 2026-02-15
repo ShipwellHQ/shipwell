@@ -1,7 +1,7 @@
 export const AVAILABLE_MODELS = [
-  { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5", contextWindow: 200_000, maxOutput: 128_000, default: true },
-  { id: "claude-opus-4-6", label: "Claude Opus 4.6", contextWindow: 1_000_000, maxOutput: 128_000 },
-  { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5", contextWindow: 200_000, maxOutput: 128_000 },
+  { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5", contextWindow: 200_000, maxOutput: 64_000, default: true },
+  { id: "claude-opus-4-6", label: "Claude Opus 4.6", contextWindow: 200_000, maxOutput: 32_000 },
+  { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5", contextWindow: 200_000, maxOutput: 64_000 },
 ] as const;
 
 export const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
