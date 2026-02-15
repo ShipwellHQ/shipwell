@@ -6,6 +6,7 @@ import { Key, Check, X, Eye, EyeOff, Shield, Cpu, ExternalLink, Sparkles, Loader
 import clsx from "clsx";
 import { AuthGuard } from "@/components/auth-guard";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { useApiKey } from "@/hooks/use-api-key";
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from "@shipwell/core/client";
 
@@ -254,6 +255,8 @@ function SettingsContent() {
           </section>
         </motion.div>
       </main>
+
+      <Footer />
     </div>
   );
 }

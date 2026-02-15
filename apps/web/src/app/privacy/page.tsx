@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Ship } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export default function PrivacyPage() {
   return (
@@ -172,13 +173,7 @@ export default function PrivacyPage() {
         </Section>
       </motion.article>
 
-      <footer className="border-t border-border px-6 py-5 text-center text-text-dim text-xs">
-        <div className="flex items-center justify-center gap-4">
-          <span>Shipwell &copy; 2026 &middot; Built by Manas Dutta</span>
-          <span className="text-border">&middot;</span>
-          <Link href="/terms" className="hover:text-accent transition-colors">Terms of Service</Link>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

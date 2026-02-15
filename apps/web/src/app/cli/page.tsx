@@ -7,6 +7,7 @@ import {
   ChevronRight, Download, Ship, ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
+import { Footer } from "@/components/footer";
 import { useState } from "react";
 import { Navbar } from "@/components/navbar";
 
@@ -465,15 +466,7 @@ export default function CliPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border px-6 py-5 text-center text-text-dim text-xs">
-        <div className="flex items-center justify-center gap-4">
-          <span>Shipwell &copy; 2026 &middot; Built by Manas Dutta</span>
-          <span className="text-border">&middot;</span>
-          <Link href="/terms" className="hover:text-accent transition-colors">Terms</Link>
-          <Link href="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

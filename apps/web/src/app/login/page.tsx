@@ -3,9 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Ship, Zap, Shield, Layers, Scan } from "lucide-react";
+import { Ship, Shield, Layers, Scan } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { LogoLoader } from "@/components/logo-loader";
+import { Footer } from "@/components/footer";
 
 const floatingParticles = [
   { left: "10%", delay: "0s", duration: "7s" },
@@ -34,7 +35,7 @@ export default function LoginPage() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute inset-0 bg-radial-glow" />
@@ -52,6 +53,7 @@ export default function LoginPage() {
         />
       ))}
 
+      <div className="flex-1 flex items-center justify-center px-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -133,22 +135,10 @@ export default function LoginPage() {
           </div>
         </motion.div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.4 }}
-          className="text-center mt-6"
-        >
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-text-dim">
-            <Zap className="w-3 h-3" />
-            Your API key stays in your browser — never on our servers
-          </div>
-          <p className="text-text-dim text-[11px] mt-2">
-            Shipwell &copy; 2026 &middot; Built by Manas Dutta
-          </p>
-        </motion.div>
       </motion.div>
+      </div>
+
+      <Footer />
     </div>
   );
 }
