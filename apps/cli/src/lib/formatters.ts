@@ -20,6 +20,13 @@ function padR(s: string, w: number): string {
   return gap > 0 ? s + " ".repeat(gap) : s;
 }
 
+function truncate(s: string, max: number): string {
+  // Collapse newlines and whitespace runs into single spaces
+  const flat = s.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  return flat.slice(0, max - 1) + "\u2026";
+}
+
 // ─── Severity colors ────────────────────────────────────────
 
 const severityColor: Record<string, (s: string) => string> = {
@@ -88,7 +95,9 @@ export function formatSummaryBox(stats: SummaryStats): string {
   lines.push(`  ${dim("\u256D" + "\u2500".repeat(W - 2) + "\u256E")}`);
   lines.push(`  ${dim("\u2502")}  ${padR(`${accent("\u26F5")} ${bold("Analysis Complete")}`, inner)}  ${dim("\u2502")}`);
   lines.push(`  ${dim("\u2502")}${" ".repeat(W - 2)}${dim("\u2502")}`);
-  lines.push(`  ${dim("\u2502")}  ${padR(sevRow, inner)}  ${dim("\u2502")}`);
+  if (sevRow) {
+    lines.push(`  ${dim("\u2502")}  ${padR(sevRow, inner)}  ${dim("\u2502")}`);
+  }
   if (crossRow) {
     lines.push(`  ${dim("\u2502")}  ${padR(crossRow, inner)}  ${dim("\u2502")}`);
   }
@@ -99,32 +108,22 @@ export function formatSummaryBox(stats: SummaryStats): string {
   return lines.join("\n");
 }
 
+/** Compact finding card — streams in real-time during analysis */
 export function formatFindingCard(f: Finding, i: number): string {
-  const lines: string[] = [];
   const sev = f.severity || "info";
   const color = severityColor[sev] || chalk.dim;
-  const icon = severityIcon[sev] || "";
   const num = dim(`${String(i + 1).padStart(2)}.`);
-  const cross = f.crossFile ? accent(" \u27F7 cross-file") : "";
+  const badge = color(`[${sev.toUpperCase()}]`);
+  const cross = f.crossFile ? accent(" \u27F7") : "";
 
-  lines.push(`  ${color("\u2502")} ${num} ${bold(f.title)}${color(` [${sev.toUpperCase()}]`)}${cross}`);
-  if (f.description) {
-    lines.push(`  ${color("\u2502")}     ${dim(f.description)}`);
-  }
+  const header = `  ${num} ${bold(f.title)} ${badge}${cross}`;
+  const lines: string[] = [header];
+
   if (f.files.length > 0) {
-    lines.push(`  ${color("\u2502")}     ${dim("files:")} ${f.files.map(file => chalk.cyan(file)).join(dim(", "))}`);
+    lines.push(`     ${f.files.map(file => chalk.cyan(file)).join(dim(", "))}`);
   }
-  if (f.diff) {
-    lines.push(`  ${color("\u2502")}`);
-    for (const line of f.diff.split("\n")) {
-      if (line.startsWith("+")) {
-        lines.push(`  ${color("\u2502")}     ${chalk.green(line)}`);
-      } else if (line.startsWith("-")) {
-        lines.push(`  ${color("\u2502")}     ${chalk.red(line)}`);
-      } else {
-        lines.push(`  ${color("\u2502")}     ${dim(line)}`);
-      }
-    }
+  if (f.description) {
+    lines.push(`     ${dim(truncate(f.description, 120))}`);
   }
 
   return lines.join("\n");

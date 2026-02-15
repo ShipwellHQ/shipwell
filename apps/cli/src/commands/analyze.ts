@@ -5,7 +5,7 @@ import type { Operation, Finding, MetricEvent } from "@shipwell/core";
 import { getApiKey, getModel, getUser } from "../lib/store.js";
 import { estimateCost, formatCost } from "../lib/pricing.js";
 import { promptConfirmation } from "../lib/prompts.js";
-import { formatSeverityRow, formatSummaryBox, formatFindingCard, formatMetric } from "../lib/formatters.js";
+import { formatSummaryBox, formatFindingCard, formatMetric } from "../lib/formatters.js";
 import { writeReport, type ExportData } from "../lib/export.js";
 
 export interface AnalyzeOptions {
@@ -85,7 +85,6 @@ export async function analyzeCommand(operation: Operation, source: string, optio
   // Phase 2: Bundle
   const bundleSpinner = ora({ text: "Bundling codebase...", color: "cyan", prefixText: "  " }).start();
   const bundle = bundleCodebase(ingestResult!);
-  bundleSpinner.text = `Bundling ${bundle.includedFiles} files (~${Math.round(bundle.totalTokens / 1000)}K tokens)...`;
   bundleSpinner.succeed(
     `Bundled ${bold(String(bundle.includedFiles))} files ${dim(`(~${Math.round(bundle.totalTokens / 1000)}K tokens)`)}`
   );
@@ -102,12 +101,13 @@ export async function analyzeCommand(operation: Operation, source: string, optio
     }
   }
 
-  // Phase 3: Analyze
-  const analyzeSpinner = ora({ text: `Running ${operation} analysis...`, color: "magenta", prefixText: "  " }).start();
+  // Phase 3: Analyze — stream findings in real-time
+  const analyzeSpinner = ora({ text: `Analyzing...`, color: "magenta", prefixText: "  " }).start();
 
   const parser = new StreamingParser();
   const allFindings: Finding[] = [];
   const allMetrics: MetricEvent[] = [];
+  let headerPrinted = false;
 
   try {
     for await (const chunk of streamAnalysis({
@@ -120,14 +120,33 @@ export async function analyzeCommand(operation: Operation, source: string, optio
     })) {
       const { findings, metrics } = parser.push(chunk);
 
-      if (findings.length > 0 || metrics.length > 0) {
-        allFindings.push(...findings);
-        allMetrics.push(...metrics);
+      // Stream findings live as they arrive
+      for (const f of findings) {
+        if (!headerPrinted) {
+          analyzeSpinner.stop();
+          console.log();
+          console.log(accent("  \u2500\u2500\u2500 Findings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"));
+          console.log();
+          headerPrinted = true;
+        } else {
+          analyzeSpinner.stop();
+        }
+        allFindings.push(f);
+        console.log(formatFindingCard(f, allFindings.length - 1));
+        console.log();
+        analyzeSpinner.start(`Analyzing... ${dim(`${allFindings.length} findings`)}`);
+      }
+
+      // Stream metrics live
+      for (const m of metrics) {
+        allMetrics.push(m);
         analyzeSpinner.text = `Analyzing... ${dim(`${allFindings.length} findings, ${allMetrics.length} metrics`)}`;
       }
 
       if (options.raw) {
+        analyzeSpinner.stop();
         process.stdout.write(chunk);
+        analyzeSpinner.start();
       }
     }
   } catch (err: any) {
@@ -136,49 +155,33 @@ export async function analyzeCommand(operation: Operation, source: string, optio
   }
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  analyzeSpinner.succeed(`Analysis complete ${dim(`(${elapsed}s)`)}`);
+  analyzeSpinner.stop();
 
-  // Results — Rich output
-  console.log();
-  console.log(accent("  \u2500\u2500\u2500 Results \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"));
-  console.log();
-
-  // Severity row
-  if (allFindings.length > 0) {
-    console.log(`  ${formatSeverityRow(allFindings)}`);
-    const crossCount = allFindings.filter(f => f.crossFile).length;
-    if (crossCount > 0) {
-      console.log(`  ${accent(`\u27F7  ${crossCount} cross-file issues`)}`);
-    }
+  if (allFindings.length === 0 && !headerPrinted) {
     console.log();
-
-    for (let i = 0; i < allFindings.length; i++) {
-      console.log(formatFindingCard(allFindings[i], i));
-      if (i < allFindings.length - 1) console.log();
-    }
-  } else {
     console.log(dim("  No findings."));
   }
 
   // Metrics
   if (allMetrics.length > 0) {
+    console.log(accent("  \u2500\u2500\u2500 Metrics \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"));
     console.log();
-    console.log(`  ${bold("Metrics")}`);
     for (const m of allMetrics) {
       console.log(formatMetric(m));
     }
+    console.log();
   }
 
   // Summary
   const summary = parser.getSummary();
   if (summary) {
+    console.log(accent("  \u2500\u2500\u2500 Summary \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"));
     console.log();
-    console.log(`  ${bold("Summary")}`);
     console.log(`  ${dim(summary)}`);
+    console.log();
   }
 
   // Summary box
-  console.log();
   const critCount = allFindings.filter(f => f.severity === "critical").length;
   const highCount = allFindings.filter(f => f.severity === "high").length;
   const medCount = allFindings.filter(f => f.severity === "medium").length;
