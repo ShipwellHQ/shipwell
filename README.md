@@ -10,7 +10,7 @@
 
 Feed an entire repository into Claude in a single pass. Get security audits, migration plans, refactoring suggestions, documentation, and dependency upgrade paths that understand how your files connect.
 
-**[shipwell.app](https://shipwell.app)** | **[npm](https://www.npmjs.com/package/@shipwellapp/cli)** | **[GitHub](https://github.com/manasdutta04/shipwell)**
+**[shipwell.app](https://shipwell.app)** | **[npm](https://www.npmjs.com/package/@shipwellapp/cli)** | **[GitHub](https://github.com/ShipwellHQ/shipwell)**
 
 ---
 

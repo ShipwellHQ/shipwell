@@ -3,7 +3,7 @@
 ## Getting Started
 
 ```bash
-git clone https://github.com/manasdutta04/shipwell.git
+git clone https://github.com/ShipwellHQ/shipwell.git
 cd shipwell
 pnpm install
 pnpm build

@@ -487,7 +487,7 @@ export default function HomePage() {
                 </p>
                 <div className="flex items-center justify-center gap-4">
                   <a
-                    href="https://github.com/manasdutta04/shipwell"
+                    href="https://github.com/ShipwellHQ/shipwell"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2.5 px-6 py-3 bg-bg-card border border-border hover:border-border-bright rounded-xl transition-all duration-300 text-sm font-medium hover:shadow-lg hover:shadow-black/20"

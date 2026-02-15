@@ -11,7 +11,7 @@ export function Footer() {
         </div>
         <div className="flex items-center gap-5 text-xs text-text-dim">
           <Link href="/cli" className="hover:text-accent transition-colors">CLI</Link>
-          <a href="https://github.com/manasdutta04/shipwell" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">GitHub</a>
+          <a href="https://github.com/ShipwellHQ/shipwell" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">GitHub</a>
           <a href="https://www.npmjs.com/package/@shipwellapp/cli" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">npm</a>
           <Link href="/terms" className="hover:text-accent transition-colors">Terms</Link>
           <Link href="/privacy" className="hover:text-accent transition-colors">Privacy</Link>

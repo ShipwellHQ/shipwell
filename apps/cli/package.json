@@ -31,12 +31,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/manasdutta04/shipwell.git",
+    "url": "git+https://github.com/ShipwellHQ/shipwell.git",
     "directory": "apps/cli"
   },
   "homepage": "https://shipwell.app",
   "bugs": {
-    "url": "https://github.com/manasdutta04/shipwell/issues"
+    "url": "https://github.com/ShipwellHQ/shipwell/issues"
   },
   "engines": {
     "node": ">=18"

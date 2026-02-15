@@ -130,7 +130,7 @@ export default function TermsPage() {
           <p>
             If you have questions about these Terms, please reach out via{" "}
             <a
-              href="https://github.com/manasdutta04/shipwell/issues"
+              href="https://github.com/ShipwellHQ/shipwell/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:text-accent-hover underline underline-offset-2"
