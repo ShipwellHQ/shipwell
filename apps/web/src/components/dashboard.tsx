@@ -152,7 +152,7 @@ function DashboardContent() {
             )}
 
             {/* Repository Input */}
-            <div>
+            <div data-tour="repo-input">
               <label className="block text-[10px] uppercase tracking-wider text-text-dim font-semibold mb-1.5">GitHub Repository</label>
               <input
                 type="text"
@@ -171,7 +171,7 @@ function DashboardContent() {
             <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
             {/* Operation Selector */}
-            <div>
+            <div data-tour="operations">
               <label className="block text-[10px] uppercase tracking-wider text-text-dim font-semibold mb-1.5">Operation</label>
               <div className="grid gap-1">
                 {operations.map((op) => (
@@ -296,6 +296,7 @@ function DashboardContent() {
               <button
                 onClick={handleStart}
                 disabled={!isReady}
+                data-tour="start-btn"
                 className={clsx(
                   "flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 text-[14px]",
                   isReady ? "glow-pulse" : "glow-accent"
@@ -309,7 +310,7 @@ function DashboardContent() {
         </aside>
 
         {/* Main Content — scrolls independently */}
-        <main className={clsx("flex-1 min-h-0 overflow-y-auto", sse.status === "idle" && "bg-analysis-gradient")}>
+        <main data-tour="results" className={clsx("flex-1 min-h-0 overflow-y-auto", sse.status === "idle" && "bg-analysis-gradient")}>
           {sse.status === "idle" ? (
             /* Empty State */
             <div className="h-full flex items-center justify-center">
