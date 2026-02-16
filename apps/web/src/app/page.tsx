@@ -1,56 +1,109 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import {
-  Shield, ArrowRight, GitBranch, Zap,
-  BookOpen, PackageCheck, LogIn, ChevronRight, Code2, Layers,
-  Terminal, Copy, Check, Ship, Sparkles, Globe, Lock, Cpu,
-  Github, FileCode, BarChart3, ExternalLink,
-} from "lucide-react";
+import { Ship, ArrowUpRight, Copy, Check, Shield, GitBranch, BookOpen, PackageCheck, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { useAuth } from "@/components/auth-provider";
 
-// ── Data ─────────────────────────────────────────────────────
-
-const operations = [
-  { id: "audit", label: "Security Audit", icon: Shield, color: "text-red-400", bg: "from-red-500/10 to-red-500/5", border: "border-red-500/15 hover:border-red-500/30", desc: "Find vulnerabilities, injection risks, auth flaws, and cross-file security issues across your entire codebase." },
-  { id: "migrate", label: "Migration Plan", icon: ArrowRight, color: "text-blue-400", bg: "from-blue-500/10 to-blue-500/5", border: "border-blue-500/15 hover:border-blue-500/30", desc: "Plan framework & library migrations with complete diffs, dependency chain analysis, and step-by-step guides." },
-  { id: "refactor", label: "Refactor Analysis", icon: GitBranch, color: "text-purple-400", bg: "from-purple-500/10 to-purple-500/5", border: "border-purple-500/15 hover:border-purple-500/30", desc: "Detect code smells, duplication, circular dependencies, dead code, and architecture anti-patterns." },
-  { id: "docs", label: "Documentation", icon: BookOpen, color: "text-emerald-400", bg: "from-emerald-500/10 to-emerald-500/5", border: "border-emerald-500/15 hover:border-emerald-500/30", desc: "Generate architecture overviews, data flow diagrams, API references, and comprehensive module guides." },
-  { id: "upgrade", label: "Dep. Upgrade", icon: PackageCheck, color: "text-amber-400", bg: "from-amber-500/10 to-amber-500/5", border: "border-amber-500/15 hover:border-amber-500/30", desc: "Analyze all dependencies, find known CVEs, check breaking changes, and plan safe version upgrades." },
-];
-
-const features = [
-  { icon: Layers, label: "Cross-file Analysis", desc: "Detects issues spanning multiple files — circular deps, inconsistent types, broken data flows — that single-file tools completely miss." },
-  { icon: Code2, label: "Real-time Streaming", desc: "Watch findings appear live as Claude analyzes your code. No waiting for the full analysis to complete." },
-  { icon: Lock, label: "Privacy First", desc: "Your API key never touches our servers. It stays in your browser or local CLI config. We don't store your code." },
-  { icon: Cpu, label: "1M Token Context", desc: "Feed your entire repository — hundreds of files — into a single prompt. No chunking, no context loss." },
-  { icon: Globe, label: "GitHub Integration", desc: "Paste any public GitHub URL. We clone, ingest, and analyze automatically. Or point to a local path." },
-  { icon: BarChart3, label: "Actionable Metrics", desc: "Get before/after scores, severity breakdowns, and quantified improvements — not just vague suggestions." },
-];
-
-const stats = [
-  { value: "1M", suffix: "", label: "Token Context" },
-  { value: "500", suffix: "+", label: "Files per scan" },
-  { value: "5", suffix: "", label: "Analysis modes" },
-  { value: "128K", suffix: "", label: "Output tokens" },
-];
-
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
 // ── Components ───────────────────────────────────────────────
+
+function SplineScene() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <div className="absolute inset-0 w-full h-full bg-bg overflow-hidden">
+      {/* Loading overlay — dark bg until iframe is ready, prevents white flash */}
+      <div
+        className="absolute inset-0 w-full h-full flex items-center justify-center z-10 bg-bg transition-opacity duration-700"
+        style={{ opacity: isLoaded ? 0 : 1, pointerEvents: isLoaded ? "none" : "auto" }}
+      >
+        <div className="text-text text-center">
+          <Ship className="w-8 h-8 text-accent mx-auto mb-3 animate-pulse" />
+          <div className="text-sm text-text-dim font-mono">Loading 3D Scene...</div>
+        </div>
+      </div>
+
+      {/* Spline iframe — invert+hue-rotate flips white bg → black while preserving model colors */}
+      <iframe
+        src="https://my.spline.design/interactiveaiassistant-fOED4V5WTp1lOQ2jtzaglYzg/"
+        frameBorder="0"
+        width="100%"
+        height="100%"
+        allow="autoplay"
+        className="absolute inset-0"
+        style={{
+          border: "none",
+          filter: "invert(0.965) hue-rotate(180deg)",
+          transform: "scale(1.05) translateX(20%)",
+          transformOrigin: "center center",
+        }}
+        onLoad={() => setIsLoaded(true)}
+      />
+
+      {/* Dark vignette — softens edges into the page bg */}
+      <div
+        className="absolute inset-0 pointer-events-none z-10"
+        style={{ boxShadow: "inset 0 0 80px 40px #09090b" }}
+      />
+
+      {/* Cover Spline watermark */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-bg to-transparent z-20 pointer-events-none" />
+    </div>
+  );
+}
+
+function HeroTextOverlay() {
+  return (
+    <div className="absolute top-30 md:top-48 left-8 z-10">
+      <h1
+        className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-3.5"
+        style={{
+          fontFamily: "var(--font-display)",
+          color: "rgb(9, 9, 11)",
+          WebkitTextStroke: "4px #6366f1",
+          paintOrder: "stroke fill",
+        }}
+      >
+        SHIPWELL
+      </h1>
+      <p className="text-text font-mono text-sm md:text-base max-w-xs tracking-widest">
+        Your Entire Codebase.
+        <br />
+        One Deep Analysis.
+      </p>
+    </div>
+  );
+}
+
+function RotatingTextAccent() {
+  const text = "-- Shipwell Analyze Your Code --- ";
+
+  return (
+    <div className="absolute bottom-20 right-8 w-24 h-24 md:w-32 md:h-32">
+      <div className="relative w-full h-full">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Ship className="w-8 h-8 md:w-10 md:h-10 text-accent" />
+        </div>
+
+        <div className="absolute inset-0 animate-spin-slow">
+          <svg className="w-full h-full" viewBox="0 0 100 100">
+            <defs>
+              <path id="circle" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
+            </defs>
+            <text className="text-xs fill-white font-medium" style={{ fontSize: "7.5px" }}>
+              <textPath href="#circle" startOffset="0%">
+                {text.repeat(2)}
+              </textPath>
+            </text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function CopyInstall() {
   const [copied, setCopied] = useState(false);
@@ -58,33 +111,12 @@ function CopyInstall() {
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(cmd); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-      className="group inline-flex items-center gap-3 bg-bg-card border border-border rounded-xl px-5 py-3 font-mono text-sm hover:border-accent/30 transition-all duration-300"
+      className="group inline-flex items-center gap-3 bg-bg border border-border rounded-lg px-4 py-2.5 font-mono text-sm hover:border-accent/40 transition-all duration-300"
     >
       <span className="text-text-dim">$</span>
       <span className="text-text-muted group-hover:text-accent transition-colors">{cmd}</span>
-      {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors" />}
+      {copied ? <Check className="w-4 h-4 text-success shrink-0" /> : <Copy className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors shrink-0" />}
     </button>
-  );
-}
-
-function SectionHeading({ badge, title, desc }: { badge: string; title: React.ReactNode; desc: string }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5 }}
-      className="text-center mb-14"
-    >
-      <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-accent/8 text-accent text-[12px] mb-5 border border-accent/15 font-medium">
-        <Sparkles className="w-3 h-3" />
-        {badge}
-      </div>
-      <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{title}</h2>
-      <p className="text-text-muted max-w-xl mx-auto leading-relaxed">{desc}</p>
-    </motion.div>
   );
 }
 
@@ -93,10 +125,6 @@ function SectionHeading({ badge, title, desc }: { badge: string; title: React.Re
 export default function HomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
 
   useEffect(() => {
     if (!loading && user) router.replace("/analysis");
@@ -105,410 +133,177 @@ export default function HomePage() {
   if (!loading && user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="w-full min-h-screen py-0 bg-bg">
       <Navbar />
 
-      <main className="flex-1">
-        {/* ── Hero ──────────────────────────────────────────── */}
-        <div ref={heroRef} className="relative overflow-hidden">
-          {/* Layered backgrounds */}
-          <div className="absolute inset-0 bg-grid" />
-          <div className="absolute inset-0 hero-glow" />
-          <div className="absolute inset-0 noise pointer-events-none" />
+      <div className="max-w-[1200px] mx-auto">
+        {/* ── Hero with 3D Scene ─────────────────────────── */}
+        <main className="w-full relative h-[600px]">
+          <SplineScene />
+          <HeroTextOverlay />
+          <RotatingTextAccent />
+        </main>
 
-          {/* Decorative beams */}
-          <div className="absolute top-0 left-1/4 w-px h-full overflow-hidden opacity-20">
-            <div className="w-full h-32 bg-gradient-to-b from-transparent via-accent to-transparent animate-beam" />
-          </div>
-          <div className="absolute top-0 right-1/3 w-px h-full overflow-hidden opacity-10">
-            <div className="w-full h-32 bg-gradient-to-b from-transparent via-accent to-transparent animate-beam" style={{ animationDelay: "1.5s" }} />
-          </div>
+        {/* ── Info Section with Grid Background ──────────── */}
+        <section
+          className="relative rounded-3xl py-7 mx-4 md:mx-0 w-[calc(100%-2rem)] md:w-full bg-bg-card border border-border pb-20"
+          style={{
+            backgroundImage: `
+              linear-gradient(var(--color-border) 1px, transparent 1px),
+              linear-gradient(90deg, var(--color-border) 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+          }}
+        >
+          {/* Decorative + signs */}
+          <div className="absolute top-8 left-8 text-text opacity-50 text-5xl font-extralight leading-[0rem]" style={{ fontFamily: "var(--font-display)" }}>+</div>
+          <div className="absolute top-8 right-8 text-text opacity-50 text-5xl font-extralight leading-[0]" style={{ fontFamily: "var(--font-display)" }}>+</div>
+          <div className="absolute bottom-8 left-8 text-text opacity-50 text-5xl font-extralight" style={{ fontFamily: "var(--font-display)" }}>+</div>
+          <div className="absolute bottom-8 right-8 text-text opacity-50 text-5xl font-extralight" style={{ fontFamily: "var(--font-display)" }}>+</div>
 
-          <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="relative">
-            <div className="flex flex-col items-center px-6 pt-28 pb-24">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="text-center max-w-4xl"
-              >
-                {/* Badge */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.15 }}
-                  className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-accent/8 text-accent text-[13px] mb-8 border border-accent/15 font-medium"
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>Powered by Claude Opus 4.6</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                </motion.div>
-
-                {/* Heading */}
-                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-6">
-                  <span className="block">Your entire codebase.</span>
-                  <span className="block gradient-text">One deep analysis.</span>
-                </h1>
-
-                <p className="text-text-muted text-lg md:text-xl leading-relaxed mb-6 max-w-2xl mx-auto">
-                  Feed hundreds of files into a single prompt. Get cross-file security audits,
-                  migration plans, refactoring insights, and more &mdash; all streaming in real-time.
-                </p>
-
-                {/* Capability pills */}
-                <div className="flex items-center justify-center gap-2.5 mb-10 flex-wrap">
-                  {[
-                    { label: "1M Context Window", color: "text-purple-400 bg-purple-500/10 border-purple-500/20" },
-                    { label: "128K Output", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
-                    { label: "Cross-File Analysis", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
-                  ].map((pill) => (
-                    <span
-                      key={pill.label}
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-medium border ${pill.color}`}
-                    >
-                      {pill.label}
-                    </span>
-                  ))}
-                </div>
-
-                {/* CTAs */}
-                {!loading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.35 }}
-                    className="flex flex-col sm:flex-row items-center gap-4 justify-center"
-                  >
-                    <Link
-                      href="/login"
-                      className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-all duration-300 glow-accent-lg text-[15px] hover:scale-[1.02]"
-                    >
-                      <LogIn className="w-5 h-5" />
-                      Get Started Free
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                    <Link
-                      href="/cli"
-                      className="inline-flex items-center gap-2.5 px-6 py-3.5 border border-border hover:border-accent/30 text-text-muted hover:text-text rounded-xl transition-all duration-300 text-[15px] font-medium"
-                    >
-                      <Terminal className="w-4.5 h-4.5" />
-                      CLI Docs
-                    </Link>
-                    <Link
-                      href="/analysis?demo=true"
-                      className="inline-flex items-center gap-2 text-accent hover:text-accent-hover text-[14px] font-medium transition-colors"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      Watch Live Demo
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </motion.div>
-                )}
-              </motion.div>
-
-              {/* Stats bar */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="flex items-center gap-0 mt-20 bg-bg-card/60 border border-border rounded-2xl overflow-hidden backdrop-blur-sm"
-              >
-                {stats.map((s, i) => (
-                  <div
-                    key={s.label}
-                    className={`px-8 py-4 text-center ${i !== stats.length - 1 ? "border-r border-border" : ""}`}
-                  >
-                    <div className="text-2xl md:text-3xl font-bold text-text tracking-tight">
-                      {s.value}<span className="text-accent">{s.suffix}</span>
-                    </div>
-                    <div className="text-[11px] text-text-dim mt-1 uppercase tracking-wider font-medium">{s.label}</div>
+          <div className="px-6 md:px-20 lg:px-40">
+            {/* Analysis modes — minimal showcase */}
+            <div className="flex items-center justify-center mb-10 gap-6 md:gap-11 flex-wrap">
+              {[
+                { icon: Shield, label: "Audit" },
+                { icon: ArrowRight, label: "Migrate" },
+                { icon: GitBranch, label: "Refactor" },
+                { icon: BookOpen, label: "Docs" },
+                { icon: PackageCheck, label: "Upgrade" },
+              ].map((m) => (
+                <div key={m.label} className="flex flex-col items-center gap-2">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-bg border border-border flex items-center justify-center">
+                    <m.icon className="w-6 h-6 text-accent" />
                   </div>
-                ))}
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* ── Demo Terminal ────────────────────────────────── */}
-        <div className="px-6 -mt-4 mb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto"
-          >
-            <div className="rounded-2xl border border-border overflow-hidden bg-bg shadow-2xl shadow-black/50 relative">
-              {/* Glow behind terminal */}
-              <div className="absolute -inset-1 bg-gradient-to-b from-accent/5 to-transparent rounded-2xl blur-xl -z-10" />
-
-              <div className="flex items-center gap-2 px-4 py-3 bg-bg-elevated border-b border-border">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/70" />
+                  <span className="text-text font-mono text-xs tracking-wider">{m.label}</span>
                 </div>
-                <span className="text-[11px] text-text-dim font-mono ml-2">~/project</span>
-              </div>
-              <div className="p-5 font-mono text-[13px] leading-[1.8] space-y-0.5">
-                <div><span className="text-success">$</span> <span className="text-text">shipwell audit</span> <span className="text-text-muted">https://github.com/acme/api</span></div>
-                <div className="text-text-dim">&nbsp;</div>
-                <div className="text-text-dim"><span className="text-accent">{"  ⛵"}</span> Cloning acme/api...</div>
-                <div className="text-text-dim"><span className="text-accent">{"  ⛵"}</span> Ingesting 342 files <span className="text-text-dim">(187,420 tokens)</span></div>
-                <div className="text-text-dim"><span className="text-accent">{"  ⛵"}</span> Analyzing with Claude Opus 4.6...</div>
-                <div className="text-text-dim">&nbsp;</div>
-                <div><span className="text-red-400">  CRITICAL</span> <span className="text-text">SQL injection in</span> <span className="text-accent">src/db/queries.ts:47</span></div>
-                <div className="text-text-dim">{"           "}Unsanitized user input flows to db.raw() via 3 files</div>
-                <div><span className="text-amber-400">  HIGH</span>     <span className="text-text">Hardcoded secret in</span> <span className="text-accent">src/config/auth.ts:12</span></div>
-                <div><span className="text-amber-400">  HIGH</span>     <span className="text-text">Missing rate limiting on</span> <span className="text-accent">src/routes/api/*.ts</span></div>
-                <div className="text-text-dim">&nbsp;</div>
-                <div><span className="text-success">  {"✔"}</span> <span className="text-text">12 findings</span> <span className="text-text-dim">(2 critical, 4 high, 3 medium, 3 low)</span></div>
-                <div><span className="text-success">  {"✔"}</span> <span className="text-text">3 cross-file issues</span> <span className="text-text-dim">detected</span></div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* ── Operations ───────────────────────────────────── */}
-        <div className="px-6 pb-24">
-          <div className="max-w-5xl mx-auto">
-            <SectionHeading
-              badge="Analysis Modes"
-              title={<>Five ways to understand your <span className="gradient-text">codebase</span></>}
-              desc="Each operation ingests your entire repository and performs deep cross-file analysis that's impossible with file-by-file tools."
-            />
-
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              {operations.map((op) => (
-                <motion.div
-                  key={op.id}
-                  variants={fadeUp}
-                  className={`group bg-gradient-to-b ${op.bg} border ${op.border} rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-black/20 hover:-translate-y-0.5`}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <op.icon className={`w-6 h-6 ${op.color}`} />
-                    <h3 className="font-semibold text-[15px]">{op.label}</h3>
-                  </div>
-                  <p className="text-text-dim text-[13px] leading-relaxed">{op.desc}</p>
-                </motion.div>
               ))}
-
-              {/* CTA card */}
-              <motion.div variants={fadeUp}>
-                <Link
-                  href="/login"
-                  className="flex flex-col items-center justify-center h-full border border-dashed border-border hover:border-accent/30 rounded-2xl p-6 transition-all duration-300 group text-center"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-accent/8 border border-accent/15 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <Sparkles className="w-5 h-5 text-accent" />
-                  </div>
-                  <span className="text-sm font-medium text-text-muted group-hover:text-accent transition-colors">Try it now</span>
-                  <span className="text-[11px] text-text-dim mt-1">Free to use with your API key</span>
-                </Link>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* ── How It Works ─────────────────────────────────── */}
-        <div className="border-t border-border bg-bg-card/20">
-          <div className="max-w-4xl mx-auto px-6 py-24">
-            <SectionHeading
-              badge="How It Works"
-              title={<>Three steps to <span className="gradient-text">deep insights</span></>}
-              desc="No configuration needed. Just point at a repo and go."
-            />
-
-            <div className="relative">
-              {/* Connecting line */}
-              <div className="hidden md:block absolute top-10 left-[calc(16.67%+20px)] right-[calc(16.67%+20px)] h-px bg-gradient-to-r from-border via-accent/20 to-border" />
-
-              <motion.div
-                variants={stagger}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-80px" }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8"
-              >
-                {[
-                  { step: "01", icon: Globe, title: "Point", desc: "Paste a GitHub URL or local path. We clone and ingest every file automatically." },
-                  { step: "02", icon: Cpu, title: "Analyze", desc: "Your entire codebase is fed into Claude's 1M context window for deep cross-file analysis." },
-                  { step: "03", icon: BarChart3, title: "Act", desc: "Get streaming findings, severity scores, diffs, and actionable recommendations." },
-                ].map((s) => (
-                  <motion.div key={s.step} variants={fadeUp} className="text-center relative">
-                    <div className="w-14 h-14 rounded-2xl bg-bg border border-border flex items-center justify-center mx-auto mb-5 relative z-10">
-                      <s.icon className="w-6 h-6 text-accent" />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center">
-                        {s.step}
-                      </div>
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">{s.title}</h3>
-                    <p className="text-text-dim text-sm leading-relaxed">{s.desc}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
             </div>
-          </div>
-        </div>
 
-        {/* ── Features Grid ────────────────────────────────── */}
-        <div className="px-6 py-24">
-          <div className="max-w-5xl mx-auto">
-            <SectionHeading
-              badge="Why Shipwell"
-              title={<>Built for <span className="gradient-text">serious</span> codebases</>}
-              desc="Not another linter. Shipwell sees your entire project at once and finds what other tools can't."
-            />
-
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-            >
-              {features.map((f) => (
-                <motion.div
-                  key={f.label}
-                  variants={fadeUp}
-                  className="group bg-bg-card border border-border rounded-2xl p-6 hover:border-border-bright transition-all duration-300 hover:shadow-lg hover:shadow-black/20"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent/8 border border-accent/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-accent/12 transition-all duration-300">
-                    <f.icon className="w-5 h-5 text-accent" />
-                  </div>
-                  <h3 className="font-semibold text-[15px] mb-2">{f.label}</h3>
-                  <p className="text-text-dim text-[13px] leading-relaxed">{f.desc}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-
-        {/* ── CLI Section ──────────────────────────────────── */}
-        <div className="border-t border-border bg-bg-card/20">
-          <div className="max-w-5xl mx-auto px-6 py-24">
-            <div className="flex flex-col lg:flex-row items-center gap-14">
-              {/* Terminal */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="flex-1 w-full"
-              >
-                <div className="rounded-2xl border border-border overflow-hidden bg-bg shadow-2xl shadow-black/40 relative">
-                  <div className="absolute -inset-1 bg-gradient-to-br from-accent/5 via-transparent to-purple-500/5 rounded-2xl blur-xl -z-10" />
-                  <div className="flex items-center gap-2 px-4 py-3 bg-bg-elevated border-b border-border">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                      <div className="w-3 h-3 rounded-full bg-green-500/70" />
-                    </div>
-                    <span className="text-[11px] text-text-dim font-mono ml-2">Terminal</span>
-                  </div>
-                  <div className="p-5 font-mono text-[13px] leading-[1.8]">
-                    <div><span className="text-success">$</span> <span className="text-text">npm i -g @shipwellapp/cli</span></div>
-                    <div><span className="text-success">$</span> <span className="text-text">shipwell login</span></div>
-                    <div className="text-text-dim"><span className="text-accent">{"  ⛵"}</span> Opening browser to sign in...</div>
-                    <div><span className="text-success">{"  ✔"}</span> Logged in as <span className="text-accent">Manas Dutta</span></div>
-                    <div className="text-text-dim">&nbsp;</div>
-                    <div><span className="text-success">$</span> <span className="text-text">shipwell refactor</span> <span className="text-text-muted">./my-project</span></div>
-                    <div className="text-text-dim"><span className="text-accent">{"  ⛵"}</span> Ingesting 128 files...</div>
-                    <div><span className="text-success">{"  ✔"}</span> <span className="text-text">8 findings</span> <span className="text-text-dim">(2 cross-file)</span></div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Info */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.15 }}
-                className="flex-1"
-              >
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-accent/8 text-accent text-[12px] mb-5 border border-accent/15 font-medium">
-                  <Terminal className="w-3 h-3" />
-                  Command Line Interface
-                </div>
-                <h2 className="text-3xl font-bold mb-4 tracking-tight">
-                  Power users, <span className="gradient-text">rejoice</span>.
-                </h2>
-                <p className="text-text-muted leading-relaxed mb-6">
-                  The same deep analysis engine, right in your terminal. Supports GitHub URLs and local paths
-                  with real-time streaming output. Pipe results, script your audits, run in CI.
-                </p>
-
+            {/* Product info — key/value mono style */}
+            <div className="flex flex-col gap-2 max-w-5xl">
+              <div className="flex items-center gap-4">
+                <span className="text-accent font-mono text-sm">Name</span>
+                <span className="text-text font-mono text-sm">Shipwell</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-accent font-mono text-sm">Engine</span>
+                <span className="text-text font-mono text-sm">Claude Opus 4.6 — 1M token context window</span>
+              </div>
+              <div className="flex items-start gap-4">
+                <span className="text-accent font-mono text-sm">What</span>
+                <span className="text-text font-mono text-sm">
+                  Full codebase analysis — security audits, migration plans, refactoring insights,
+                  documentation, and dependency upgrades. All streaming in real-time.
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-accent font-mono text-sm">Install</span>
                 <CopyInstall />
-
-                <div className="flex items-center gap-5 mt-6">
-                  <Link
-                    href="/cli"
-                    className="inline-flex items-center gap-1.5 text-accent text-sm hover:text-accent-hover font-medium transition-colors"
-                  >
-                    View CLI docs <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
-                  <a
-                    href="https://www.npmjs.com/package/@shipwellapp/cli"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-text-dim text-sm hover:text-text-muted font-medium transition-colors"
-                  >
-                    npm <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              </motion.div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* ── Open Source Banner ────────────────────────────── */}
-        <div className="px-6 py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <div className="relative bg-gradient-to-b from-accent/8 to-transparent border border-accent/15 rounded-3xl p-10 overflow-hidden">
-              <div className="absolute inset-0 noise pointer-events-none" />
-              <div className="relative">
-                <Ship className="w-10 h-10 text-accent mx-auto mb-5" />
-                <h2 className="text-3xl font-bold mb-3 tracking-tight">Open Source</h2>
-                <p className="text-text-muted max-w-md mx-auto mb-8 leading-relaxed">
-                  Shipwell is fully open source. Star the repo, report issues, or contribute.
-                </p>
-                <div className="flex items-center justify-center gap-4">
-                  <a
-                    href="https://github.com/ShipwellHQ/shipwell"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-bg-card border border-border hover:border-border-bright rounded-xl transition-all duration-300 text-sm font-medium hover:shadow-lg hover:shadow-black/20"
-                  >
-                    <Github className="w-4.5 h-4.5" />
-                    View on GitHub
-                  </a>
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-accent hover:bg-accent-hover text-white rounded-xl transition-all duration-300 text-sm font-semibold glow-accent"
-                  >
-                    Get Started <ArrowRight className="w-4 h-4" />
-                  </Link>
+        {/* ── Terminal Preview ────────────────────────────── */}
+        <section className="px-4 md:px-0 mt-16">
+          <div className="rounded-2xl border border-border overflow-hidden bg-bg-card">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-bg-elevated">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#ef4444]/70" />
+                <div className="w-3 h-3 rounded-full bg-[#f59e0b]/70" />
+                <div className="w-3 h-3 rounded-full bg-[#22c55e]/70" />
+              </div>
+              <span className="text-[11px] text-text-dim font-mono">~/project</span>
+              <div className="w-12" />
+            </div>
+            <div className="p-6 font-mono text-[13px] leading-[1.9]">
+              <div><span className="text-success">$</span> <span className="text-text">shipwell audit</span> <span className="text-text-muted">./my-app</span></div>
+              <div className="text-text-dim">&nbsp;</div>
+              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Ingesting 342 files <span className="text-text-dim">(187,420 tokens)</span></div>
+              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Analyzing with Claude Opus 4.6...</div>
+              <div className="text-text-dim">&nbsp;</div>
+              <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">SQL injection in</span> <span className="text-accent">src/db/queries.ts:47</span></div>
+              <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Hardcoded secret in</span> <span className="text-accent">src/config/auth.ts:12</span></div>
+              <div className="text-text-dim">&nbsp;</div>
+              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">12 findings</span> <span className="text-text-dim">(2 critical, 4 high, 3 medium, 3 low)</span></div>
+              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">PR #47 created</span> <span className="text-accent">with 8 auto-fixes</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* ── Footer ─────────────────────────────────────────── */}
+      <footer className="w-full px-6 relative py-0 mt-28 h-auto mb-0 bg-bg-card">
+        {/* Decorative elements */}
+        <div className="absolute top-8 right-6 text-accent text-2xl">+</div>
+        <div className="absolute top-1/2 right-12 text-accent text-lg -translate-y-1/2">{"\u2726"}</div>
+        <div className="absolute bottom-24 right-20 text-accent text-xl">+</div>
+        <div className="absolute top-16 right-32 text-accent text-sm">{"\u2726"}</div>
+        <div className="absolute bottom-20 right-8 text-accent text-lg">{"\u2726"}</div>
+
+        <div className="max-w-[1200px] mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            {/* Left content */}
+            <div className="flex-1 max-w-lg mt-8">
+              <h2
+                className="text-text text-4xl md:text-5xl mb-8 leading-[3.5rem] md:leading-[4rem] font-semibold text-center md:text-left"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Everything is Connected.
+              </h2>
+
+              <div className="space-y-4 text-text">
+                <div className="flex items-start gap-3">
+                  <span className="text-accent mt-1">{"\u2022"}</span>
+                  <p className="text-sm font-mono">Shipwell sees your entire codebase at once — cross-file issues that no other tool catches.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-accent mt-1">{"\u2022"}</span>
+                  <p className="text-sm font-mono">Security audits, migration plans, refactoring insights — all from one command.</p>
                 </div>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </main>
 
-      <Footer />
+            {/* Right — large ship icon */}
+            <div className="hidden md:flex flex-1 justify-end items-center">
+              <Ship className="w-48 h-48 text-accent opacity-10" />
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="w-full px-6 py-16 flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 md:gap-0 border-t border-border mt-16">
+            <div className="flex flex-col md:flex-row gap-2 text-center md:text-left">
+              <h2 className="text-text font-mono text-xl font-bold flex items-center gap-2">
+                <Ship className="w-5 h-5 text-accent" />
+                Shipwell
+              </h2>
+              <p className="text-text font-mono font-normal text-base">Full Codebase Autopilot</p>
+            </div>
+
+            {!loading && (
+              <Link
+                href="/login"
+                className="bg-accent text-white px-8 py-4 rounded-full font-semibold text-lg whitespace-nowrap hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all duration-300 font-mono flex items-center gap-2"
+              >
+                Get Started
+                <ArrowUpRight className="w-5 h-5" />
+              </Link>
+            )}
+          </div>
+
+          <div className="w-full px-6 py-4 border-t border-border flex items-center justify-between gap-2">
+            <p className="text-text-dim text-sm font-mono">&copy; 2026 Shipwell</p>
+            <div className="flex items-center gap-4 text-text-dim text-sm font-mono">
+              <Link href="/cli" className="hover:text-accent transition-colors">CLI</Link>
+              <Link href="/github-app" className="hover:text-accent transition-colors">GitHub App</Link>
+              <a href="https://github.com/ShipwellHQ/shipwell" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">GitHub</a>
+              <Link href="/terms" className="hover:text-accent transition-colors">Terms</Link>
+              <Link href="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

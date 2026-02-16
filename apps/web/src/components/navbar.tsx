@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Ship, Settings, User, LogOut, ChevronDown, Key } from "lucide-react";
+import { Ship, User, LogOut, ChevronDown, Key, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import { useAuth } from "./auth-provider";
@@ -11,7 +11,6 @@ import { useAuth } from "./auth-provider";
 export function Navbar() {
   const { user, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -25,35 +24,27 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 4);
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const isAnalysis = pathname === "/analysis";
+  const isLanding = pathname === "/";
 
   return (
     <nav
       className={clsx(
-        "sticky top-0 z-50 glass h-14 shrink-0 transition-all duration-200",
-        scrolled
-          ? "shadow-[0_1px_12px_rgba(99,102,241,0.08)] border-b border-accent/10"
-          : "border-b border-border"
+        "z-50 backdrop-blur-sm transition-all duration-200",
+        isLanding
+          ? "fixed top-0 left-0 right-0 bg-bg/0"
+          : "sticky top-0 bg-bg/80 border-b border-border"
       )}
     >
-      <div className="px-5 h-full flex items-center justify-between">
+      <div className="flex items-center justify-between px-6 py-4">
         <Link href={user ? "/analysis" : "/"} className="flex items-center gap-2 group">
           <Ship className="w-5 h-5 text-accent group-hover:text-accent-hover transition-colors" />
-          <span className="font-bold text-[15px] tracking-tight">Shipwell</span>
+          <span className="font-bold text-[15px] tracking-tight font-mono">Shipwell</span>
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Connected status pill on /analysis */}
           {isAnalysis && user && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-[11px] font-medium text-success ring-1 ring-success/20">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-[11px] font-medium text-success ring-1 ring-success/20 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-success" />
               Connected
             </div>
@@ -62,9 +53,9 @@ export function Navbar() {
           {!user && (
             <Link
               href="/login"
-              className="flex items-center gap-2 px-4 py-1.5 text-[13px] font-medium text-accent hover:text-accent-hover transition-colors"
+              className="bg-accent text-white rounded-full px-6 py-2 text-sm font-semibold font-mono transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] flex items-center gap-1.5"
             >
-              Sign in
+              Get Started <ArrowUpRight className="w-4 h-4" />
             </Link>
           )}
 
@@ -86,7 +77,7 @@ export function Navbar() {
                     {user.displayName?.[0] || user.email?.[0] || "?"}
                   </div>
                 )}
-                <span className="text-[13px] text-text-muted hidden sm:block max-w-[120px] truncate">
+                <span className="text-[13px] text-text-muted hidden sm:block max-w-[120px] truncate font-mono">
                   {user.displayName?.split(" ")[0] || user.email}
                 </span>
                 <ChevronDown className={clsx(
@@ -102,17 +93,17 @@ export function Navbar() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -4 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 mt-2 w-52 glass border border-border rounded-xl shadow-2xl shadow-black/50 z-50 py-1 overflow-hidden"
+                    className="absolute right-0 mt-2 w-52 bg-bg-card border border-border rounded-xl shadow-2xl shadow-black/50 z-50 py-1 overflow-hidden backdrop-blur-xl"
                   >
                     <div className="px-3.5 py-3 border-b border-border">
-                      <p className="text-sm font-medium truncate">{user.displayName}</p>
-                      <p className="text-xs text-text-dim truncate mt-0.5">{user.email}</p>
+                      <p className="text-sm font-medium truncate font-mono">{user.displayName}</p>
+                      <p className="text-xs text-text-dim truncate mt-0.5 font-mono">{user.email}</p>
                     </div>
                     <div className="py-1">
                       <Link
                         href="/profile"
                         onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-text-muted hover:bg-bg-elevated hover:text-text transition-colors"
+                        className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-text-muted hover:bg-bg-elevated hover:text-text transition-colors font-mono"
                       >
                         <User className="w-4 h-4" />
                         Profile
@@ -120,7 +111,7 @@ export function Navbar() {
                       <Link
                         href="/settings"
                         onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-text-muted hover:bg-bg-elevated hover:text-text transition-colors"
+                        className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-text-muted hover:bg-bg-elevated hover:text-text transition-colors font-mono"
                       >
                         <Key className="w-4 h-4" />
                         API Key & Model
@@ -129,7 +120,7 @@ export function Navbar() {
                     <div className="border-t border-border py-1">
                       <button
                         onClick={() => { setMenuOpen(false); signOut(); }}
-                        className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-danger hover:bg-danger/5 transition-colors w-full"
+                        className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-danger hover:bg-danger/5 transition-colors w-full font-mono"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign out

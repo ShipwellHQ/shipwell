@@ -17,7 +17,8 @@
   --color-danger: #ef4444;
   --color-info: #3b82f6;
   --font-sans: var(--font-inter), "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-mono: var(--font-ibm-mono), var(--font-jetbrains), "IBM Plex Mono", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-display: var(--font-montserrat), "Montserrat", var(--font-inter), "Inter", system-ui, sans-serif;
 }
 
 html {
@@ -27,7 +28,7 @@ html {
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
 }
 
 /* Focus-visible accessibility */
@@ -60,6 +61,15 @@ body {
 }
 .cursor-blink {
   animation: blink 1s infinite;
+}
+
+/* Slow spin for rotating text accent */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
 }
 
 /* Glow effects */
