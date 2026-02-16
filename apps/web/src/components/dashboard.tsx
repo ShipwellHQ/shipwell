@@ -11,7 +11,6 @@ import {
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
-import { AuthGuard } from "@/components/auth-guard";
 import { Navbar } from "@/components/navbar";
 import { ActivityLog } from "@/components/activity-log";
 import { useSSE } from "@/hooks/use-sse";
@@ -40,17 +39,15 @@ const operations = [
 
 type Tab = "findings" | "raw" | "metrics";
 
-export default function AnalysisPage() {
+export function Dashboard() {
   return (
-    <AuthGuard>
-      <Suspense>
-        <AnalysisContent />
-      </Suspense>
-    </AuthGuard>
+    <Suspense>
+      <DashboardContent />
+    </Suspense>
   );
 }
 
-function AnalysisContent() {
+function DashboardContent() {
   const [source, setSource] = useState("");
   const [operation, setOperation] = useState<string>("audit");
   const [target, setTarget] = useState("");
@@ -87,9 +84,12 @@ function AnalysisContent() {
     prevFindingCount.current = sse.findings.length;
   }, [sse.findings, addToast]);
 
-  const model = typeof window !== "undefined"
-    ? localStorage.getItem("shipwell_model") || DEFAULT_MODEL
-    : DEFAULT_MODEL;
+  const [model, setModel] = useState(DEFAULT_MODEL);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("shipwell_model");
+    if (stored) setModel(stored);
+  }, []);
 
   const handleStart = () => {
     if (!source || !apiKey || !isGitHubUrl) return;

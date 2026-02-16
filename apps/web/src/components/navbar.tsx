@@ -24,8 +24,8 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const isAnalysis = pathname === "/analysis";
-  const isLanding = pathname === "/";
+  const isAnalysis = pathname === "/" && !!user;
+  const isLanding = pathname === "/" && !user;
 
   return (
     <nav
@@ -37,7 +37,7 @@ export function Navbar() {
       )}
     >
       <div className="flex items-center justify-between px-6 py-4">
-        <Link href={user ? "/analysis" : "/"} className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group">
           <Ship className="w-7 h-7 text-accent group-hover:text-accent-hover transition-colors" />
           <span className="text-xl" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>Shipwell</span>
         </Link>

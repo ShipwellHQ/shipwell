@@ -29,6 +29,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.cookie = "__session=1; path=/; max-age=31536000; SameSite=Lax";
+      } else {
+        document.cookie = "__session=; path=/; max-age=0";
+      }
       setUser(user);
       setLoading(false);
     });
@@ -45,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     const auth = getFirebaseAuth();
     if (!auth) return;
+    document.cookie = "__session=; path=/; max-age=0";
     await firebaseSignOut(auth);
   };
 
