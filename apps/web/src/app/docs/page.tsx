@@ -6,7 +6,7 @@ import {
   Ship, Shield, ArrowRight, GitBranch, BookOpen, PackageCheck,
   Terminal, Copy, Check, Search, Menu, X, Settings, Key, Flag,
   Code2, GitPullRequest, ExternalLink, ChevronRight, Download,
-  Cpu, LogIn, RefreshCw, Lock, Zap, Globe, FileCode,
+  Cpu, LogIn, RefreshCw, Lock, Zap, Globe, FileCode, FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
@@ -82,6 +82,7 @@ const ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   "github-app-faq": BookOpen,
   "api-key-model": Key,
   "supported-languages": Code2,
+  changelog: FileText,
 };
 
 type SectionId = string;
@@ -130,7 +131,10 @@ const NAV: NavGroup[] = [
   },
   {
     label: "Reference",
-    items: [{ id: "supported-languages", title: "Supported Languages" }],
+    items: [
+      { id: "supported-languages", title: "Supported Languages" },
+      { id: "changelog", title: "Changelog" },
+    ],
   },
 ];
 
@@ -512,7 +516,7 @@ export default function DocsPage() {
                   {/* Left — branding & status */}
                   <div className="border border-border rounded-lg p-4 flex-1">
                     <div className="text-accent font-bold text-lg tracking-wide mb-1">SHIPWELL</div>
-                    <div className="text-text-dim text-[12px] mb-3">v0.4.0</div>
+                    <div className="text-text-dim text-[12px] mb-3">v0.4.2</div>
                     <div className="text-text text-sm">Welcome back, <span className="text-accent">Manas</span>!</div>
                     <div className="mt-3 flex items-center gap-2 text-[12px]">
                       <span className="text-text-muted">Claude Sonnet 4.5</span>
@@ -989,6 +993,92 @@ export default function DocsPage() {
               <p className="text-text-dim text-xs mt-4">
                 Additional languages and frameworks are supported — Claude{"'"}s training data covers most programming languages in use today.
               </p>
+            </Section>
+
+            {/* ── Changelog ───────────────────────────── */}
+            <Section id="changelog" title="Changelog">
+              <div className="space-y-8">
+                {[
+                  {
+                    version: "0.4.2",
+                    changes: [
+                      "Added shipwell help command with full reference for all commands, flags, and examples",
+                      "Added shipwell help <command> for per-command detailed help",
+                      "Consolidated /cli and /github-app pages into /docs with #hash navigation",
+                      "Minimal footer on /docs, /profile, /settings, /privacy, /terms",
+                      "Cleaned terminal demo in docs for better readability",
+                    ],
+                  },
+                  {
+                    version: "0.4.1",
+                    changes: [
+                      "npm publish workflow for automated releases",
+                      "CLI documentation updates for --create-pr flag",
+                    ],
+                  },
+                  {
+                    version: "0.4.0",
+                    changes: [
+                      "GitHub App PR creation via --create-pr flag on all analysis commands",
+                      "PRs authored by ShipwellHQ[bot] through the web API",
+                      "Added /github-app page with setup guide, PR preview, permissions, and FAQ",
+                      "Updated /cli page with Auto-Fix PRs section",
+                    ],
+                  },
+                  {
+                    version: "0.3.1",
+                    changes: [
+                      "Updated Claude model context window and max output values",
+                      "Streaming analysis findings and metrics in real-time",
+                      "Redesigned analysis summary box with word wrapping and markdown stripping",
+                    ],
+                  },
+                  {
+                    version: "0.3.0",
+                    changes: [
+                      "Interactive CLI mode with guided prompts (shipwell interactive)",
+                      "Enhanced output formatting with compact finding cards",
+                      "Export functionality for analysis results (.md and .json)",
+                    ],
+                  },
+                  {
+                    version: "0.2.0",
+                    changes: [
+                      "CLI authentication: login, logout, whoami, config commands",
+                      "Migrated CLI build to tsup, renamed package to @shipwellapp/cli",
+                      "Box-drawing welcome banner with model info display",
+                    ],
+                  },
+                  {
+                    version: "0.1.0",
+                    changes: [
+                      "Initial release with five analysis operations: audit, migrate, refactor, docs, upgrade",
+                      "Full codebase ingestion with Claude Opus (1M token context)",
+                      "Web app with analysis dashboard, health score, and severity distribution",
+                      "Firebase authentication with Google sign-in",
+                    ],
+                  },
+                ].map((release) => (
+                  <div key={release.version}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-accent font-bold text-sm font-mono">v{release.version}</span>
+                      {release.version === "0.4.2" && (
+                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+                          Latest
+                        </span>
+                      )}
+                    </div>
+                    <ul className="space-y-1.5">
+                      {release.changes.map((change, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[13px] text-text-muted">
+                          <span className="text-accent mt-1 shrink-0">&#8226;</span>
+                          <span>{change}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </Section>
           </div>
 

@@ -12,7 +12,7 @@ import { configShowCommand, configSetCommand, configDeleteCommand } from "./comm
 import { modelsCommand } from "./commands/models.js";
 import { getUser, getApiKey, getModel } from "./lib/store.js";
 
-const VERSION = "0.4.1";
+const VERSION = "0.4.2";
 
 const accent = chalk.hex("#6366f1");
 const dim = chalk.dim;
@@ -260,6 +260,101 @@ program
       spinner.fail("Update failed. Try manually:");
       console.log(`  ${chalk.cyan("npm install -g @shipwellapp/cli@latest")}`);
     }
+    console.log();
+  });
+
+// ─── Help command ──────────────────────────────────────────
+
+program
+  .command("help")
+  .description("Show help for all commands, flags, and usage")
+  .argument("[command]", "Show detailed help for a specific command")
+  .action((cmd?: string) => {
+    // If a specific command was requested, delegate to commander's built-in help
+    if (cmd) {
+      const sub = program.commands.find(c => c.name() === cmd || c.aliases().includes(cmd));
+      if (sub) {
+        sub.outputHelp();
+        return;
+      }
+      console.log(chalk.red(`  Unknown command: ${cmd}\n`));
+    }
+
+    const w = Math.min(process.stdout.columns || 80, 90);
+    const hr = dim("─".repeat(w));
+
+    console.log();
+    console.log(`  ${accent("⛵ Shipwell CLI")} ${dim(`v${VERSION}`)}`);
+    console.log(`  ${dim("Full Codebase Autopilot — deep cross-file analysis powered by Claude")}`);
+    console.log();
+    console.log(hr);
+    console.log();
+
+    // Analysis operations
+    console.log(`  ${bold("ANALYSIS OPERATIONS")}`);
+    console.log();
+    console.log(`  ${chalk.cyan("shipwell audit")} ${dim("<path>")}       ${dim("Run a security audit on a codebase")}`);
+    console.log(`  ${chalk.cyan("shipwell migrate")} ${dim("<path>")}     ${dim("Plan a framework/library migration")}`);
+    console.log(`  ${chalk.cyan("shipwell refactor")} ${dim("<path>")}    ${dim("Detect code smells & architecture issues")}`);
+    console.log(`  ${chalk.cyan("shipwell docs")} ${dim("<path>")}        ${dim("Generate comprehensive documentation")}`);
+    console.log(`  ${chalk.cyan("shipwell upgrade")} ${dim("<path>")}     ${dim("Analyze dependencies & plan upgrades")}`);
+    console.log();
+    console.log(`  ${dim("<path> can be a local directory or a GitHub URL")}`);
+    console.log();
+    console.log(hr);
+    console.log();
+
+    // Flags
+    console.log(`  ${bold("FLAGS")} ${dim("(apply to any analysis command)")}`);
+    console.log();
+    console.log(`  ${accent("-k, --api-key <key>")}       ${dim("Override the stored API key for this run")}`);
+    console.log(`  ${accent("-m, --model <model>")}       ${dim("Override the Claude model")}`);
+    console.log(`  ${accent("-t, --target <target>")}     ${dim("Migration target framework/library")}`);
+    console.log(`  ${accent("-c, --context <ctx>")}       ${dim("Additional context for the analysis")}`);
+    console.log(`  ${accent("-r, --raw")}                 ${dim("Print raw streaming output alongside results")}`);
+    console.log(`  ${accent("-y, --yes")}                 ${dim("Skip cost confirmation prompt")}`);
+    console.log(`  ${accent("-o, --output <path>")}       ${dim("Export report to file (.md or .json)")}`);
+    console.log(`  ${accent("    --create-pr")}           ${dim("Create a GitHub PR with auto-fixes")}`);
+    console.log();
+    console.log(hr);
+    console.log();
+
+    // Account & Config
+    console.log(`  ${bold("ACCOUNT & CONFIG")}`);
+    console.log();
+    console.log(`  ${chalk.cyan("shipwell login")}              ${dim("Sign in with Google via browser")}`);
+    console.log(`  ${chalk.cyan("shipwell logout")}             ${dim("Sign out and clear credentials")}`);
+    console.log(`  ${chalk.cyan("shipwell whoami")}             ${dim("Show current user, API key & model")}`);
+    console.log(`  ${chalk.cyan("shipwell config")}             ${dim("View current configuration")}`);
+    console.log(`  ${chalk.cyan("shipwell config set")} ${dim("<k> <v>")}  ${dim("Set a config value (api-key, model)")}`);
+    console.log(`  ${chalk.cyan("shipwell config delete")} ${dim("<k>")}  ${dim("Delete a config value")}`);
+    console.log(`  ${chalk.cyan("shipwell delete-key")}         ${dim("Remove stored Anthropic API key")}`);
+    console.log();
+    console.log(hr);
+    console.log();
+
+    // Utilities
+    console.log(`  ${bold("UTILITIES")}`);
+    console.log();
+    console.log(`  ${chalk.cyan("shipwell interactive")}        ${dim("Launch interactive guided mode")}`);
+    console.log(`  ${chalk.cyan("shipwell models")}             ${dim("List available Claude models")}`);
+    console.log(`  ${chalk.cyan("shipwell update")}             ${dim("Update CLI to the latest version")}`);
+    console.log(`  ${chalk.cyan("shipwell help")}               ${dim("Show this help page")}`);
+    console.log(`  ${chalk.cyan("shipwell help")} ${dim("<command>")}     ${dim("Show help for a specific command")}`);
+    console.log();
+    console.log(hr);
+    console.log();
+
+    // Examples
+    console.log(`  ${bold("EXAMPLES")}`);
+    console.log();
+    console.log(`  ${dim("$")} ${chalk.cyan("shipwell audit ./my-app")}`);
+    console.log(`  ${dim("$")} ${chalk.cyan('shipwell migrate ./app --target "Next.js 15"')}`);
+    console.log(`  ${dim("$")} ${chalk.cyan("shipwell audit ./app --create-pr --yes")}`);
+    console.log(`  ${dim("$")} ${chalk.cyan("shipwell audit ./app -o report.md -m claude-opus-4-6")}`);
+    console.log(`  ${dim("$")} ${chalk.cyan("shipwell config set api-key sk-ant-api03-...")}`);
+    console.log();
+    console.log(`  ${dim("Docs:")} ${accent("https://shipwell.app/docs")}`);
     console.log();
   });
 
