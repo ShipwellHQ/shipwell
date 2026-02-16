@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Montserrat, IBM_Plex_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Montserrat, IBM_Plex_Mono, EB_Garamond } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 
@@ -22,6 +22,13 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
 });
 
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-serif",
+});
+
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -40,7 +47,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${jetbrainsMono.variable} ${montserrat.variable} ${ibmPlexMono.variable} min-h-screen antialiased`}>
+      <body className={`${inter.variable} ${jetbrainsMono.variable} ${montserrat.variable} ${ibmPlexMono.variable} ${ebGaramond.variable} min-h-screen antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

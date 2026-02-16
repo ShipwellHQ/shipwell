@@ -55,31 +55,61 @@ function SplineScene() {
   );
 }
 
+const WORDS = ["Audit", "Migrate", "Refactor", "Docs", "Upgrade"];
+
 function HeroTextOverlay() {
+  const [index, setIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [phase, setPhase] = useState<"typing" | "hold" | "deleting">("typing");
+
+  const word = WORDS[index];
+
+  useEffect(() => {
+    if (phase === "typing") {
+      if (displayed.length < word.length) {
+        const t = setTimeout(() => setDisplayed(word.slice(0, displayed.length + 1)), 100);
+        return () => clearTimeout(t);
+      }
+      setPhase("hold");
+    } else if (phase === "hold") {
+      const t = setTimeout(() => setPhase("deleting"), 1800);
+      return () => clearTimeout(t);
+    } else if (phase === "deleting") {
+      if (displayed.length > 0) {
+        const t = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 60);
+        return () => clearTimeout(t);
+      }
+      setIndex((i) => (i + 1) % WORDS.length);
+      setPhase("typing");
+    }
+  }, [displayed, phase, word]);
+
   return (
-    <div className="absolute top-30 md:top-48 left-8 z-10">
+    <div className="absolute top-48 md:top-72 left-8 z-10">
       <h1
-        className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-3.5"
+        className="text-6xl md:text-7xl lg:text-8xl mb-1"
         style={{
-          fontFamily: "var(--font-display)",
+          fontFamily: "Menlo, Monaco, 'Courier New', monospace",
           color: "rgb(9, 9, 11)",
           WebkitTextStroke: "4px #6366f1",
           paintOrder: "stroke fill",
+          letterSpacing: "0.06em",
         }}
       >
-        SHIPWELL
+        {displayed}
+        <span className="cursor-blink text-accent">|</span>
       </h1>
-      <p className="text-text font-mono text-sm md:text-base max-w-xs tracking-widest">
-        Your Entire Codebase.
+      <p className="text-text font-mono text-sm md:text-base max-w-xs tracking-widest mt-6">
+        Full Codebase Autopilot.
         <br />
-        One Deep Analysis.
+        Powered by Opus 4.6
       </p>
     </div>
   );
 }
 
 function RotatingTextAccent() {
-  const text = "-- Shipwell Analyze Your Code --- ";
+  const text = " AUDIT \u00B7 MIGRATE \u00B7 REFACTOR \u00B7 DOCS \u00B7 UPGRADE \u00B7";
 
   return (
     <div className="absolute bottom-20 right-8 w-24 h-24 md:w-32 md:h-32">
@@ -156,10 +186,10 @@ export default function HomePage() {
           }}
         >
           {/* Decorative + signs */}
-          <div className="absolute top-8 left-8 text-text opacity-50 text-5xl font-extralight leading-[0rem]" style={{ fontFamily: "var(--font-display)" }}>+</div>
-          <div className="absolute top-8 right-8 text-text opacity-50 text-5xl font-extralight leading-[0]" style={{ fontFamily: "var(--font-display)" }}>+</div>
-          <div className="absolute bottom-8 left-8 text-text opacity-50 text-5xl font-extralight" style={{ fontFamily: "var(--font-display)" }}>+</div>
-          <div className="absolute bottom-8 right-8 text-text opacity-50 text-5xl font-extralight" style={{ fontFamily: "var(--font-display)" }}>+</div>
+          <div className="absolute top-8 left-8 text-text opacity-50 text-5xl font-extralight leading-[0rem]" style={{ fontFamily: "var(--font-mono)" }}>+</div>
+          <div className="absolute top-8 right-8 text-text opacity-50 text-5xl font-extralight leading-[0]" style={{ fontFamily: "var(--font-mono)" }}>+</div>
+          <div className="absolute bottom-8 left-8 text-text opacity-50 text-5xl font-extralight" style={{ fontFamily: "var(--font-mono)" }}>+</div>
+          <div className="absolute bottom-8 right-8 text-text opacity-50 text-5xl font-extralight" style={{ fontFamily: "var(--font-mono)" }}>+</div>
 
           <div className="px-6 md:px-20 lg:px-40">
             {/* Analysis modes — minimal showcase */}
@@ -181,24 +211,25 @@ export default function HomePage() {
             </div>
 
             {/* Product info — key/value mono style */}
-            <div className="flex flex-col gap-2 max-w-5xl">
+            <div className="flex flex-col gap-2.5 max-w-5xl">
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm">Name</span>
-                <span className="text-text font-mono text-sm">Shipwell</span>
+                <span className="text-accent font-mono text-sm w-16 shrink-0">Name</span>
+                <span className="text-text text-base" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>Shipwell</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm">Engine</span>
-                <span className="text-text font-mono text-sm">Claude Opus 4.6 — 1M token context window</span>
-              </div>
-              <div className="flex items-start gap-4">
-                <span className="text-accent font-mono text-sm">What</span>
-                <span className="text-text font-mono text-sm">
-                  Full codebase analysis — security audits, migration plans, refactoring insights,
-                  documentation, and dependency upgrades. All streaming in real-time.
-                </span>
+                <span className="text-accent font-mono text-sm w-16 shrink-0">Engine</span>
+                <span className="text-text font-mono text-sm">Claude Opus 4.6 — 1M token context</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm">Install</span>
+                <span className="text-accent font-mono text-sm w-16 shrink-0">Input</span>
+                <span className="text-text font-mono text-sm">Entire codebase — every file, every dependency</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-accent font-mono text-sm w-16 shrink-0">Output</span>
+                <span className="text-text font-mono text-sm">Findings, diffs, and auto-fix PRs — streamed live</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-accent font-mono text-sm w-16 shrink-0">Install</span>
                 <CopyInstall />
               </div>
             </div>
@@ -218,16 +249,18 @@ export default function HomePage() {
               <div className="w-12" />
             </div>
             <div className="p-6 font-mono text-[13px] leading-[1.9]">
-              <div><span className="text-success">$</span> <span className="text-text">shipwell audit</span> <span className="text-text-muted">./my-app</span></div>
+              <div><span className="text-success">$</span> <span className="text-text">shipwell audit</span> <span className="text-text-muted">./my-saas-app</span></div>
               <div className="text-text-dim">&nbsp;</div>
-              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Ingesting 342 files <span className="text-text-dim">(187,420 tokens)</span></div>
-              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Analyzing with Claude Opus 4.6...</div>
+              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Packing 847 files into context <span className="text-text-dim">(412,038 tokens)</span></div>
+              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Streaming analysis from Opus 4.6...</div>
               <div className="text-text-dim">&nbsp;</div>
-              <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">SQL injection in</span> <span className="text-accent">src/db/queries.ts:47</span></div>
-              <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Hardcoded secret in</span> <span className="text-accent">src/config/auth.ts:12</span></div>
+              <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">SQL injection via unsanitized input</span> <span className="text-accent">src/db/queries.ts:47</span></div>
+              <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">JWT secret hardcoded in source</span> <span className="text-accent">src/config/auth.ts:12</span></div>
+              <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Missing rate-limit on auth endpoints</span> <span className="text-accent">src/api/login.ts:8</span></div>
+              <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Open redirect in OAuth callback</span> <span className="text-accent">src/api/oauth.ts:31</span></div>
               <div className="text-text-dim">&nbsp;</div>
-              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">12 findings</span> <span className="text-text-dim">(2 critical, 4 high, 3 medium, 3 low)</span></div>
-              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">PR #47 created</span> <span className="text-accent">with 8 auto-fixes</span></div>
+              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">18 findings</span> <span className="text-text-dim">(2 critical · 4 high · 7 medium · 5 low)</span></div>
+              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">PR #63 opened</span> <span className="text-accent">with 14 auto-fixes applied</span></div>
             </div>
           </div>
         </section>
@@ -248,19 +281,19 @@ export default function HomePage() {
             <div className="flex-1 max-w-lg mt-8">
               <h2
                 className="text-text text-4xl md:text-5xl mb-8 leading-[3.5rem] md:leading-[4rem] font-semibold text-center md:text-left"
-                style={{ fontFamily: "var(--font-display)" }}
+                style={{ fontFamily: "var(--font-mono)" }}
               >
-                Everything is Connected.
+                See What Others Miss.
               </h2>
 
               <div className="space-y-4 text-text">
                 <div className="flex items-start gap-3">
                   <span className="text-accent mt-1">{"\u2022"}</span>
-                  <p className="text-sm font-mono">Shipwell sees your entire codebase at once — cross-file issues that no other tool catches.</p>
+                  <p className="text-sm font-mono">Your entire codebase in one prompt — cross-file vulnerabilities, circular dependencies, dead code paths.</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-accent mt-1">{"\u2022"}</span>
-                  <p className="text-sm font-mono">Security audits, migration plans, refactoring insights — all from one command.</p>
+                  <p className="text-sm font-mono">One command. Five operations. Auto-fix PRs pushed to your repo in seconds.</p>
                 </div>
               </div>
             </div>
@@ -274,8 +307,8 @@ export default function HomePage() {
           {/* Bottom bar */}
           <div className="w-full px-6 py-16 flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 md:gap-0 border-t border-border mt-16">
             <div className="flex flex-col md:flex-row gap-2 text-center md:text-left">
-              <h2 className="text-text font-mono text-xl font-bold flex items-center gap-2">
-                <Ship className="w-5 h-5 text-accent" />
+              <h2 className="text-text text-3xl flex items-center gap-2.5" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>
+                <Ship className="w-6 h-6 text-accent" />
                 Shipwell
               </h2>
               <p className="text-text font-mono font-normal text-base">Full Codebase Autopilot</p>
@@ -293,7 +326,7 @@ export default function HomePage() {
           </div>
 
           <div className="w-full px-6 py-4 border-t border-border flex items-center justify-between gap-2">
-            <p className="text-text-dim text-sm font-mono">&copy; 2026 Shipwell</p>
+            <p className="text-text-dim text-sm font-mono">&copy; 2026 <span style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>Shipwell</span></p>
             <div className="flex items-center gap-4 text-text-dim text-sm font-mono">
               <Link href="/cli" className="hover:text-accent transition-colors">CLI</Link>
               <Link href="/github-app" className="hover:text-accent transition-colors">GitHub App</Link>
