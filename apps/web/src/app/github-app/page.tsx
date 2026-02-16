@@ -125,7 +125,7 @@ export default function GitHubAppPage() {
               GitHub Integration
             </motion.div>
 
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
               ShipwellHQ <span className="gradient-text">GitHub App</span>
             </h1>
             <p className="text-text-muted text-lg max-w-2xl mx-auto mb-8">

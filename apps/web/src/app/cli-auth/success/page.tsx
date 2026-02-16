@@ -21,7 +21,7 @@ function SuccessContent() {
             <CheckCircle2 className="w-8 h-8 text-success" />
           </div>
           <h1 className="text-2xl font-bold mb-2 tracking-tight">
-            Welcome to <span className="gradient-text">Shipwell</span>
+            Welcome to <span className="gradient-text" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>Shipwell</span>
           </h1>
           <p className="text-text-muted text-sm leading-relaxed">
             Signed in as <span className="text-accent font-semibold">{name}</span>

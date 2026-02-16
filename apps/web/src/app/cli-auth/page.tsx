@@ -78,7 +78,7 @@ function CliAuthContent() {
             <Ship className="w-10 h-10 text-accent" />
           </div>
           <h1 className="text-2xl font-bold mb-2 tracking-tight">
-            Sign in to <span className="gradient-text">Shipwell CLI</span>
+            Sign in to <span className="gradient-text" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>Shipwell CLI</span>
           </h1>
           <p className="text-text-muted text-sm leading-relaxed">
             Authenticate your terminal session

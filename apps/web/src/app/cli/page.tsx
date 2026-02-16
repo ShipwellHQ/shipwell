@@ -122,7 +122,7 @@ export default function CliPage() {
               Command Line Interface
             </motion.div>
 
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
               Shipwell <span className="gradient-text">CLI</span>
             </h1>
             <p className="text-text-muted text-lg max-w-xl mx-auto mb-8">

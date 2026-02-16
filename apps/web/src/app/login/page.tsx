@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Ship, Shield, Layers, Scan } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { LogoLoader } from "@/components/logo-loader";
-import { Footer } from "@/components/footer";
 
 const floatingParticles = [
   { left: "10%", delay: "0s", duration: "7s" },
@@ -81,7 +80,7 @@ export default function LoginPage() {
               <Ship className="w-10 h-10 text-accent relative" />
             </div>
           </motion.div>
-          <h1 className="text-3xl font-bold mb-2 tracking-tight">Welcome to <span className="gradient-text">Shipwell</span></h1>
+          <h1 className="text-3xl font-bold mb-2 tracking-tight">Welcome to <span className="gradient-text" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>Shipwell</span></h1>
           <p className="text-text-muted text-sm leading-relaxed">
             Full Codebase Autopilot powered by Claude
           </p>
@@ -137,8 +136,6 @@ export default function LoginPage() {
 
       </motion.div>
       </div>
-
-      <Footer />
     </div>
   );
 }
