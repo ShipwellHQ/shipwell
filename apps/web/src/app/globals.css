@@ -31,6 +31,12 @@ body {
   font-family: var(--font-mono);
 }
 
+/* Text selection */
+::selection {
+  background: rgba(99, 102, 241, 0.4);
+  color: #fff;
+}
+
 /* Focus-visible accessibility */
 *:focus-visible {
   outline: 2px solid var(--color-accent);

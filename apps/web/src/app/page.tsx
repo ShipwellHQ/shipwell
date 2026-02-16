@@ -308,7 +308,7 @@ export default function HomePage() {
           <div className="w-full px-6 py-16 flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 md:gap-0 border-t border-border mt-16">
             <div className="flex flex-col md:flex-row gap-2 text-center md:text-left">
               <h2 className="text-text text-3xl flex items-center gap-2.5" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>
-                <Ship className="w-6 h-6 text-accent" />
+                <Ship className="w-8 h-8 text-accent" />
                 Shipwell
               </h2>
               <p className="text-text font-mono font-normal text-base">Full Codebase Autopilot</p>
