@@ -16,14 +16,9 @@ function SplineScene() {
     <div className="absolute inset-0 w-full h-full bg-bg overflow-hidden">
       {/* Loading overlay — dark bg until iframe is ready, prevents white flash */}
       <div
-        className="absolute inset-0 w-full h-full flex items-center justify-center z-10 bg-bg transition-opacity duration-700"
+        className="absolute inset-0 w-full h-full z-10 bg-bg transition-opacity duration-700"
         style={{ opacity: isLoaded ? 0 : 1, pointerEvents: isLoaded ? "none" : "auto" }}
-      >
-        <div className="text-text text-center">
-          <Ship className="w-8 h-8 text-accent mx-auto mb-3 animate-pulse" />
-          <div className="text-sm text-text-dim font-mono">Loading 3D Scene...</div>
-        </div>
-      </div>
+      />
 
       {/* Spline iframe — invert+hue-rotate flips white bg → black while preserving model colors */}
       <iframe
