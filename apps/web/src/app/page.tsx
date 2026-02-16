@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Ship, ArrowUpRight, Copy, Check, Shield, GitBranch, BookOpen, PackageCheck, ArrowRight } from "lucide-react";
+import { Ship, ArrowUpRight, Copy, Check, Shield, GitBranch, BookOpen, PackageCheck, ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -141,12 +141,77 @@ function CopyInstall() {
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(cmd); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-      className="group inline-flex items-center gap-3 bg-bg border border-border rounded-lg px-4 py-2.5 font-mono text-sm hover:border-accent/40 transition-all duration-300"
+      className="group inline-flex items-center gap-3 bg-bg border border-border rounded-lg px-4 py-2.5 text-sm hover:border-accent/40 transition-all duration-300"
+      style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}
     >
       <span className="text-text-dim">$</span>
       <span className="text-text-muted group-hover:text-accent transition-colors">{cmd}</span>
       {copied ? <Check className="w-4 h-4 text-success shrink-0" /> : <Copy className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors shrink-0" />}
     </button>
+  );
+}
+
+const FAQS = [
+  { q: "What is Shipwell?", a: "Shipwell is a CLI tool that ingests your entire codebase into Claude Opus 4.6's 1M token context window for deep cross-file analysis. It supports five operations: audit, migrate, refactor, docs, and upgrade." },
+  { q: "Is my code safe?", a: "Yes. Your code is sent directly to Anthropic's API over an encrypted connection. Nothing is stored, logged, or cached on our servers. We never see your source code." },
+  { q: "What languages are supported?", a: "Shipwell works with any programming language — TypeScript, JavaScript, Python, Go, Rust, Java, Ruby, C#, and more. If it's text-based source code, Shipwell can analyze it." },
+  { q: "How does the auto-fix PR work?", a: "When Shipwell finds issues with actionable fixes, it generates diffs. With the --create-pr flag and our GitHub App installed, those diffs are pushed as a pull request to your repository automatically." },
+];
+
+function FAQSection() {
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <div className="mt-16 px-6 md:px-0 flex flex-col md:flex-row gap-10" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
+      {/* FAQ — left */}
+      <div className="flex-1">
+        <h3 className="text-text text-2xl font-semibold mb-6">FAQ</h3>
+        <div className="space-y-2">
+          {FAQS.map((faq, i) => (
+            <div key={i} className="border border-border rounded-xl overflow-hidden">
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-bg-elevated/50 transition-colors"
+              >
+                <span className="text-sm text-text">{faq.q}</span>
+                <span className={`text-accent text-lg shrink-0 ml-4 transition-transform duration-200 ${open === i ? "rotate-45" : ""}`}>+</span>
+              </button>
+              <div
+                className="grid transition-all duration-300 ease-in-out"
+                style={{ gridTemplateRows: open === i ? "1fr" : "0fr" }}
+              >
+                <div className="overflow-hidden">
+                  <p className="px-5 pb-5 pt-1 text-sm text-text-muted leading-relaxed">{faq.a}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Support — right */}
+      <div className="md:w-80 shrink-0">
+        <h3 className="text-text text-2xl font-semibold mb-6">Support</h3>
+        <div className="border border-border rounded-xl p-6 bg-bg-elevated/30">
+          <Heart className="w-8 h-8 text-accent mb-4" />
+          <p className="text-sm text-text mb-2 font-semibold">Back this project</p>
+          <p className="text-sm text-text-muted leading-relaxed mb-6">
+            Shipwell is open-source and community-driven. If it saves you time, consider sponsoring to keep development going.
+          </p>
+          <div className="space-y-3">
+            <a
+              href="https://github.com/sponsors/manasdutta04"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 w-full px-4 py-3 rounded-lg border border-accent/30 bg-accent/5 text-sm text-accent hover:bg-accent/10 transition-colors"
+            >
+              <Heart className="w-4 h-4" />
+              Sponsor on GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -210,26 +275,26 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Product info — key/value mono style */}
-            <div className="flex flex-col gap-2.5 max-w-5xl">
+            {/* Product info — key/value terminal style */}
+            <div className="flex flex-col gap-3 max-w-5xl" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm w-16 shrink-0">Name</span>
-                <span className="text-text text-base" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>Shipwell</span>
+                <span className="text-accent text-sm w-16 shrink-0">Name</span>
+                <span className="text-text text-base" style={{ letterSpacing: "0.04em" }}>Shipwell</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm w-16 shrink-0">Engine</span>
-                <span className="text-text font-mono text-sm">Claude Opus 4.6 — 1M token context</span>
+                <span className="text-accent text-sm w-16 shrink-0">Engine</span>
+                <span className="text-text text-sm">Claude Opus 4.6 — 1M token context</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm w-16 shrink-0">Input</span>
-                <span className="text-text font-mono text-sm">Entire codebase — every file, every dependency</span>
+                <span className="text-accent text-sm w-16 shrink-0">Input</span>
+                <span className="text-text text-sm">Entire codebase — every file, every dependency</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm w-16 shrink-0">Output</span>
-                <span className="text-text font-mono text-sm">Findings, diffs, and auto-fix PRs — streamed live</span>
+                <span className="text-accent text-sm w-16 shrink-0">Output</span>
+                <span className="text-text text-sm">Findings, diffs, and auto-fix PRs — streamed live</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-accent font-mono text-sm w-16 shrink-0">Install</span>
+                <span className="text-accent text-sm w-16 shrink-0">Install</span>
                 <CopyInstall />
               </div>
             </div>
@@ -248,19 +313,41 @@ export default function HomePage() {
               <span className="text-[11px] text-text-dim font-mono">~/project</span>
               <div className="w-12" />
             </div>
-            <div className="p-6 font-mono text-[13px] leading-[1.9]">
-              <div><span className="text-success">$</span> <span className="text-text">shipwell audit</span> <span className="text-text-muted">./my-saas-app</span></div>
-              <div className="text-text-dim">&nbsp;</div>
-              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Packing 847 files into context <span className="text-text-dim">(412,038 tokens)</span></div>
-              <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Streaming analysis from Opus 4.6...</div>
-              <div className="text-text-dim">&nbsp;</div>
-              <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">SQL injection via unsanitized input</span> <span className="text-accent">src/db/queries.ts:47</span></div>
-              <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">JWT secret hardcoded in source</span> <span className="text-accent">src/config/auth.ts:12</span></div>
-              <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Missing rate-limit on auth endpoints</span> <span className="text-accent">src/api/login.ts:8</span></div>
-              <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Open redirect in OAuth callback</span> <span className="text-accent">src/api/oauth.ts:31</span></div>
-              <div className="text-text-dim">&nbsp;</div>
-              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">18 findings</span> <span className="text-text-dim">(2 critical · 4 high · 7 medium · 5 low)</span></div>
-              <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">PR #63 opened</span> <span className="text-accent">with 14 auto-fixes applied</span></div>
+            <div className="flex flex-col md:flex-row" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
+              {/* Terminal output — left */}
+              <div className="flex-1 p-6 text-[13px] leading-[1.9]">
+                <div><span className="text-success">$</span> <span className="text-text">shipwell audit</span> <span className="text-text-muted">./my-saas-app</span></div>
+                <div className="text-text-dim">&nbsp;</div>
+                <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Packing 847 files into context <span className="text-text-dim">(412,038 tokens)</span></div>
+                <div className="text-text-dim"><span className="text-accent">{"\u26F5"}</span> Streaming analysis from Opus 4.6...</div>
+                <div className="text-text-dim">&nbsp;</div>
+                <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">SQL injection via unsanitized input</span> <span className="text-accent">src/db/queries.ts:47</span></div>
+                <div><span className="text-[#ef4444]">  CRITICAL</span> <span className="text-text">JWT secret hardcoded in source</span> <span className="text-accent">src/config/auth.ts:12</span></div>
+                <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Missing rate-limit on auth endpoints</span> <span className="text-accent">src/api/login.ts:8</span></div>
+                <div><span className="text-[#f59e0b]">  HIGH</span>     <span className="text-text">Open redirect in OAuth callback</span> <span className="text-accent">src/api/oauth.ts:31</span></div>
+                <div className="text-text-dim">&nbsp;</div>
+                <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">18 findings</span> <span className="text-text-dim">(2 critical · 4 high · 7 medium · 5 low)</span></div>
+                <div><span className="text-success">  {"\u2714"}</span> <span className="text-text">PR #63 opened</span> <span className="text-accent">with 14 auto-fixes applied</span></div>
+              </div>
+              {/* Stats panel — right */}
+              <div className="hidden md:flex flex-col justify-center gap-5 px-8 py-6 border-l border-border bg-bg-elevated/30 w-64 shrink-0">
+                <div>
+                  <div className="text-3xl font-bold text-text">847</div>
+                  <div className="text-[11px] text-text-dim mt-1">files scanned</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-text">412K</div>
+                  <div className="text-[11px] text-text-dim mt-1">tokens ingested</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-[#ef4444]">18</div>
+                  <div className="text-[11px] text-text-dim mt-1">findings detected</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-success">14</div>
+                  <div className="text-[11px] text-text-dim mt-1">auto-fixes applied</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -281,19 +368,19 @@ export default function HomePage() {
             <div className="flex-1 max-w-lg mt-8">
               <h2
                 className="text-text text-4xl md:text-5xl mb-8 leading-[3.5rem] md:leading-[4rem] font-semibold text-center md:text-left"
-                style={{ fontFamily: "var(--font-mono)" }}
+                style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}
               >
                 See What Others Miss.
               </h2>
 
-              <div className="space-y-4 text-text">
+              <div className="space-y-4 text-text" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
                 <div className="flex items-start gap-3">
                   <span className="text-accent mt-1">{"\u2022"}</span>
-                  <p className="text-sm font-mono">Your entire codebase in one prompt — cross-file vulnerabilities, circular dependencies, dead code paths.</p>
+                  <p className="text-sm">Your entire codebase in one prompt — cross-file vulnerabilities, circular dependencies, dead code paths.</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-accent mt-1">{"\u2022"}</span>
-                  <p className="text-sm font-mono">One command. Five operations. Auto-fix PRs pushed to your repo in seconds.</p>
+                  <p className="text-sm">One command. Five operations. Auto-fix PRs pushed to your repo in seconds.</p>
                 </div>
               </div>
             </div>
@@ -304,30 +391,12 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="w-full px-6 py-16 flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 md:gap-0 border-t border-border mt-16">
-            <div className="flex flex-col md:flex-row gap-2 text-center md:text-left">
-              <h2 className="text-text text-3xl flex items-center gap-2.5" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>
-                <Ship className="w-8 h-8 text-accent" />
-                Shipwell
-              </h2>
-              <p className="text-text font-mono font-normal text-base">Full Codebase Autopilot</p>
-            </div>
+          {/* FAQ */}
+          <FAQSection />
 
-            {!loading && (
-              <Link
-                href="/login"
-                className="bg-accent text-white px-8 py-4 rounded-full font-semibold text-lg whitespace-nowrap hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all duration-300 font-mono flex items-center gap-2"
-              >
-                Get Started
-                <ArrowUpRight className="w-5 h-5" />
-              </Link>
-            )}
-          </div>
-
-          <div className="w-full px-6 py-4 border-t border-border flex items-center justify-between gap-2">
-            <p className="text-text-dim text-sm font-mono">&copy; 2026 <span style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace", letterSpacing: "0.04em" }}>Shipwell</span></p>
-            <div className="flex items-center gap-4 text-text-dim text-sm font-mono">
+          <div className="w-full px-6 py-4 border-t border-border mt-16 flex items-center justify-between gap-2" style={{ fontFamily: "Menlo, Monaco, 'Courier New', monospace" }}>
+            <p className="text-text-dim text-sm">&copy; 2026 Shipwell. All rights reserved. Developed by Manas Dutta</p>
+            <div className="flex items-center gap-4 text-text-dim text-sm">
               <Link href="/cli" className="hover:text-accent transition-colors">CLI</Link>
               <Link href="/github-app" className="hover:text-accent transition-colors">GitHub App</Link>
               <a href="https://github.com/ShipwellHQ/shipwell" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">GitHub</a>
