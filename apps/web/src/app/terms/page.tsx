@@ -141,7 +141,7 @@ export default function TermsPage() {
         </Section>
       </motion.article>
 
-      <Footer />
+      <Footer minimal />
     </div>
   );
 }

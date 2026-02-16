@@ -257,7 +257,7 @@ function AnalysisContent() {
 
             {/* CLI Link */}
             <Link
-              href="/cli"
+              href="/docs#cli"
               className="flex items-center gap-2.5 px-3 py-2.5 bg-accent/5 border border-accent/10 rounded-xl text-[12px] hover:bg-accent/10 transition-colors group"
             >
               <div className="w-7 h-7 rounded-md bg-accent/10 flex items-center justify-center shrink-0">

@@ -173,7 +173,7 @@ export default function PrivacyPage() {
         </Section>
       </motion.article>
 
-      <Footer />
+      <Footer minimal />
     </div>
   );
 }

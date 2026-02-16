@@ -298,7 +298,7 @@ function SettingsContent() {
         </motion.div>
       </main>
 
-      <Footer />
+      <Footer minimal />
     </div>
   );
 }

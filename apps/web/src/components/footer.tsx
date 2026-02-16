@@ -70,7 +70,30 @@ function FAQSection() {
   );
 }
 
-export function Footer() {
+function FooterBar() {
+  return (
+    <div className="w-full px-6 py-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2" style={{ fontFamily: MENLO }}>
+      <p className="text-text-dim text-sm">&copy; 2026 Shipwell. All rights reserved. Developed by Manas Dutta</p>
+      <div className="flex items-center gap-4 text-text-dim text-sm">
+        <Link href="/docs#cli" className="hover:text-accent transition-colors">CLI</Link>
+        <Link href="/docs#github-app" className="hover:text-accent transition-colors">GitHub App</Link>
+        <a href="https://github.com/ShipwellHQ/shipwell" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">GitHub</a>
+        <Link href="/terms" className="hover:text-accent transition-colors">Terms</Link>
+        <Link href="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+      </div>
+    </div>
+  );
+}
+
+export function Footer({ minimal = false }: { minimal?: boolean }) {
+  if (minimal) {
+    return (
+      <footer className="w-full mt-auto">
+        <FooterBar />
+      </footer>
+    );
+  }
+
   return (
     <footer className="w-full px-6 relative py-0 mt-28 h-auto mb-0 bg-bg-card overflow-hidden">
       {/* Decorative elements */}
@@ -112,15 +135,8 @@ export function Footer() {
         {/* FAQ */}
         <FAQSection />
 
-        <div className="w-full px-6 py-4 border-t border-border mt-16 flex flex-col sm:flex-row items-center justify-between gap-2" style={{ fontFamily: MENLO }}>
-          <p className="text-text-dim text-sm">&copy; 2026 Shipwell. All rights reserved. Developed by Manas Dutta</p>
-          <div className="flex items-center gap-4 text-text-dim text-sm">
-            <Link href="/cli" className="hover:text-accent transition-colors">CLI</Link>
-            <Link href="/github-app" className="hover:text-accent transition-colors">GitHub App</Link>
-            <a href="https://github.com/ShipwellHQ/shipwell" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">GitHub</a>
-            <Link href="/terms" className="hover:text-accent transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
-          </div>
+        <div className="mt-16">
+          <FooterBar />
         </div>
       </div>
     </footer>
